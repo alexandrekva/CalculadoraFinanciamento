@@ -1,6 +1,5 @@
 package com.alexkva.calculadorafinanciamento.ui.components
 
-import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +13,6 @@ fun CurrencyOutlinedTextField(
     inputValue: String,
     isError: Boolean = false,
     onValueChanged: (String) -> Unit,
-    onDoneAction: (KeyboardActionScope.() -> Unit)? = null,
     currency: Currency = Currency.BRAZILIAN_REAL
 ) {
     val currencyIcon: @Composable (() -> Unit) = { Text(text = currency.symbol) }
@@ -25,7 +23,6 @@ fun CurrencyOutlinedTextField(
         label = label,
         inputValue = inputValue,
         onValueChanged = onValueChanged,
-        onDoneAction = onDoneAction,
         leadingIcon = currencyIcon,
         decimalValueInputVisualTransformation = DecimalValueInputVisualTransformation(),
         isError = isError

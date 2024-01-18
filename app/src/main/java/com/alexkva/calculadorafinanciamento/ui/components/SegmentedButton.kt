@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alexkva.calculadorafinanciamento.R
+import com.alexkva.calculadorafinanciamento.ui.models.SegmentedButtonCollection
 import com.alexkva.calculadorafinanciamento.ui.models.SegmentedButtonModel
 import com.alexkva.calculadorafinanciamento.ui.theme.EndSegmentedButtonShape
 import com.alexkva.calculadorafinanciamento.ui.theme.StartSegmentedButtonShape
@@ -33,11 +34,11 @@ import com.alexkva.calculadorafinanciamento.ui.theme.StartSegmentedButtonShape
 @Composable
 fun SegmentedButton(
     modifier: Modifier = Modifier,
-    buttons: List<SegmentedButtonModel>,
+    buttonCollection: SegmentedButtonCollection,
     selectedButton: String,
     onButtonClick: (String) -> Unit
 ) {
-    val size = buttons.size
+    val size = buttonCollection.segmentedButtons.size
     val buttonWeight = 1f / size.toFloat()
 
     Row(
@@ -45,11 +46,11 @@ fun SegmentedButton(
             .fillMaxWidth()
             .selectableGroup()
     ) {
-        buttons.forEachIndexed { index: Int, button: SegmentedButtonModel ->
+        buttonCollection.segmentedButtons.forEachIndexed { index: Int, button: SegmentedButtonModel ->
             val isSelected = button.label == selectedButton
 
             val backgroundColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
+                MaterialTheme.colorScheme.secondaryContainer
             } else {
                 MaterialTheme.colorScheme.surface
             }
@@ -70,7 +71,7 @@ fun SegmentedButton(
                         .background(backgroundColor)
                 }
 
-                buttons.size - 1 -> {
+                buttonCollection.segmentedButtons.size - 1 -> {
                     Modifier
                         .clip(EndSegmentedButtonShape)
                         .background(MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f))
@@ -108,12 +109,16 @@ fun SegmentedButton(
                     ) {
                         button.icon?.let {
                             Icon(
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(24.dp),
                                 painter = painterResource(id = it),
                                 contentDescription = null
                             )
                         }
-                        Text(text = button.label, style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                        Text(
+                            text = button.label,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -125,14 +130,14 @@ fun SegmentedButton(
 @Composable
 private fun PreviewSegmentedButton() {
     Column(modifier = Modifier.padding(24.dp)) {
-        SegmentedButton(buttons = List(2) { i ->
-            SegmentedButtonModel(
-                "Botão ${i + 1}",
-                R.drawable.ic_android_black_24dp
-            )
-        }, selectedButton = "Botão 1") {
-
+        SegmentedButton(buttonCollection = SegmentedButtonCollection(
+            List(2) { i ->
+                SegmentedButtonModel(
+                    "Botão ${i + 1}",
+                    R.drawable.ic_android_black_24dp
+                )
+            }
+        ), selectedButton = "Botão 1") {
         }
     }
-
 }

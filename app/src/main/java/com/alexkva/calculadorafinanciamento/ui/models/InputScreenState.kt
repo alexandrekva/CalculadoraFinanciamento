@@ -12,5 +12,11 @@ data class InputScreenState(
     val annualInterestState: InputStates = InputStates.VALID,
     val term: String = "",
     val termOption: TermOptions = TermOptions.Years,
-    val termState: InputStates = InputStates.VALID
+    val termState: InputStates = InputStates.VALID,
+    val hasInsurance: Boolean = false,
+    val insurance: String = "",
+    val hasAdministrationTax: Boolean = false,
+    val administrationTax: String = "",
+    val hasReferenceRate: Boolean = false,
+    val referenceRate: String = ""
 )

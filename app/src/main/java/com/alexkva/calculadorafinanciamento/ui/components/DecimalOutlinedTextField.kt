@@ -2,8 +2,6 @@ package com.alexkva.calculadorafinanciamento.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActionScope
-import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
@@ -30,13 +28,10 @@ fun DecimalOutlinedTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     maxLength: Int = 12,
-    onDoneAction: (KeyboardActionScope.() -> Unit)? = null,
     onValueChanged: (String) -> Unit
 ) {
-    var isFocused by remember { mutableStateOf(false) }
-
     OutlinedTextField(
-        modifier = modifier.onFocusChanged { isFocused = it.isFocused },
+        modifier = modifier,
         value = inputValue,
         onValueChange = {
             onValueChanged(
@@ -49,7 +44,6 @@ fun DecimalOutlinedTextField(
         leadingIcon = if (inputValue.isNotEmpty()) leadingIcon else null,
         visualTransformation = decimalValueInputVisualTransformation,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-        keyboardActions = KeyboardActions(onDone = onDoneAction),
         singleLine = true,
         isError = isError
     )

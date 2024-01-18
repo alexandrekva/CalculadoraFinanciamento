@@ -6,7 +6,6 @@ import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.use_cases.ValidateDecimalInput
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
-import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,7 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.TermOptionChanged -> {
-                updateTermOption(_inputState.value.termOption.inverse())
+                updateTermOption(userEvent.termOption)
             }
 
             is InputScreenUserEvents.AmountFinancedChanged -> {
@@ -37,16 +36,36 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.TermChanged -> {
-                val term = userEvent.term.formatToNumericString()
-                    .limitedCharacters(inputState.value.termOption.charLimit)
-                updateTerm(term)
+                updateTerm(userEvent.term)
             }
 
             is InputScreenUserEvents.AnnualInterestChanged -> {
                 updateAnnualInterest(userEvent.annualInterest)
             }
 
-            else -> {}
+            is InputScreenUserEvents.HasInsuranceChanged -> {
+                updateHasInsurance(userEvent.hasInsurance)
+            }
+
+            is InputScreenUserEvents.InsuranceChanged -> {
+                updateInsurance(userEvent.insurance)
+            }
+
+            is InputScreenUserEvents.HasAdministrationTaxChanged -> {
+                updateHasAdministrationTax(userEvent.hasAdministrationTax)
+            }
+
+            is InputScreenUserEvents.AdministrationTaxChanged -> {
+                updateAdministrationTax(userEvent.administrationTax)
+            }
+
+            is InputScreenUserEvents.HasReferenceRateChanged -> {
+                updateHasReferenceRate(userEvent.hasReferenceRate)
+            }
+
+            is InputScreenUserEvents.ReferenceRateChanged -> {
+                updateReferenceRate(userEvent.referenceRate)
+            }
         }
     }
 
@@ -75,6 +94,45 @@ class InputScreenViewModel @Inject constructor(
         _inputState.update { it.copy(annualInterest = annualInterest) }
     }
 
-    //it.formatToNumericString()
-    //                    .limitedCharacters(inputState.value.termOption.charLimit)
+    private fun updateHasInsurance(hasInsurance: Boolean) {
+        _inputState.update {
+            if (hasInsurance && it.insurance.isEmpty()) {
+                it.copy(hasInsurance = hasInsurance, insurance = "")
+            } else {
+                it.copy(hasInsurance = hasInsurance)
+            }
+        }
+    }
+
+    private fun updateInsurance(insurance: String) {
+        _inputState.update { it.copy(insurance = insurance) }
+    }
+
+    private fun updateHasAdministrationTax(hasAdministrationTax: Boolean) {
+        _inputState.update {
+            if (hasAdministrationTax && it.administrationTax.isEmpty()) {
+                it.copy(hasAdministrationTax = hasAdministrationTax, administrationTax = "")
+            } else {
+                it.copy(hasAdministrationTax = hasAdministrationTax)
+            }
+        }
+    }
+
+    private fun updateAdministrationTax(administrationTax: String) {
+        _inputState.update { it.copy(administrationTax = administrationTax) }
+    }
+
+    private fun updateHasReferenceRate(hasReferenceRate: Boolean) {
+        _inputState.update {
+            if (hasReferenceRate && it.referenceRate.isEmpty()) {
+                it.copy(hasReferenceRate = hasReferenceRate, referenceRate = "")
+            } else {
+                it.copy(hasReferenceRate = hasReferenceRate)
+            }
+        }
+    }
+
+    private fun updateReferenceRate(referenceRate: String) {
+        _inputState.update { it.copy(referenceRate = referenceRate) }
+    }
 }
