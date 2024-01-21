@@ -68,7 +68,7 @@ private fun InputScreen(
 
     val buttons = remember {
         SegmentedButtonBuilder.buildByFinancingTypes(
-            FinancingTypes.values()
+            FinancingTypes.entries
         )
     }
 
