@@ -2,6 +2,7 @@ package com.alexkva.calculadorafinanciamento.ui.screens
 
 import androidx.lifecycle.ViewModel
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
+import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.use_cases.ValidateDecimalInput
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
@@ -15,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
-    validateDecimalInput: ValidateDecimalInput
+    val validateDecimalInput: ValidateDecimalInput
 ) : ViewModel() {
 
     private val _inputState = MutableStateFlow(InputScreenState())
@@ -66,6 +67,16 @@ class InputScreenViewModel @Inject constructor(
             is InputScreenUserEvents.ReferenceRateChanged -> {
                 updateReferenceRate(userEvent.referenceRate)
             }
+
+            is InputScreenUserEvents.SimulateButtonClicked -> {
+                validateInputFields()
+                if (inputState.value.isValidInput()) {
+                    val simParams = inputState.value.toSimulationParameters()
+                    println(simParams)
+                } else {
+                    println("Not Valid Input")
+                }
+            }
         }
     }
 
@@ -83,56 +94,78 @@ class InputScreenViewModel @Inject constructor(
     }
 
     private fun updateAmountFinanced(amountFinanced: String) {
-        _inputState.update { it.copy(amountFinanced = amountFinanced) }
+        _inputState.update {
+            it.copy(amountFinanced = amountFinanced, amountFinancedState = InputStates.VALID)
+        }
     }
 
     private fun updateTerm(term: String) {
-        _inputState.update { it.copy(term = term) }
+        _inputState.update { it.copy(term = term, termState = InputStates.VALID) }
     }
 
     private fun updateAnnualInterest(annualInterest: String) {
-        _inputState.update { it.copy(annualInterest = annualInterest) }
+        _inputState.update {
+            it.copy(
+                annualInterest = annualInterest,
+                annualInterestState = InputStates.VALID
+            )
+        }
     }
 
     private fun updateHasInsurance(hasInsurance: Boolean) {
         _inputState.update {
-            if (hasInsurance && it.insurance.isEmpty()) {
-                it.copy(hasInsurance = hasInsurance, insurance = "")
-            } else {
-                it.copy(hasInsurance = hasInsurance)
-            }
+            it.copy(hasInsurance = hasInsurance)
         }
     }
 
     private fun updateInsurance(insurance: String) {
-        _inputState.update { it.copy(insurance = insurance) }
+        _inputState.update { it.copy(insurance = insurance, insuranceState = InputStates.VALID) }
     }
 
     private fun updateHasAdministrationTax(hasAdministrationTax: Boolean) {
         _inputState.update {
-            if (hasAdministrationTax && it.administrationTax.isEmpty()) {
-                it.copy(hasAdministrationTax = hasAdministrationTax, administrationTax = "")
-            } else {
-                it.copy(hasAdministrationTax = hasAdministrationTax)
-            }
+            it.copy(hasAdministrationTax = hasAdministrationTax)
         }
     }
 
     private fun updateAdministrationTax(administrationTax: String) {
-        _inputState.update { it.copy(administrationTax = administrationTax) }
+        _inputState.update {
+            it.copy(
+                administrationTax = administrationTax,
+                administrationTaxState = InputStates.VALID
+            )
+        }
     }
 
     private fun updateHasReferenceRate(hasReferenceRate: Boolean) {
         _inputState.update {
-            if (hasReferenceRate && it.referenceRate.isEmpty()) {
-                it.copy(hasReferenceRate = hasReferenceRate, referenceRate = "")
-            } else {
-                it.copy(hasReferenceRate = hasReferenceRate)
-            }
+            it.copy(hasReferenceRate = hasReferenceRate)
         }
     }
 
     private fun updateReferenceRate(referenceRate: String) {
-        _inputState.update { it.copy(referenceRate = referenceRate) }
+        _inputState.update {
+            it.copy(
+                referenceRate = referenceRate,
+                referenceRateState = InputStates.VALID
+            )
+        }
+    }
+
+    private fun validateInputFields() {
+        _inputState.update {
+            it.run {
+                copy(
+                    amountFinancedState = validateDecimalInput(amountFinanced),
+                    annualInterestState = validateDecimalInput(annualInterest),
+                    termState = validateDecimalInput(term),
+                    insuranceState = if (hasInsurance) validateDecimalInput(insurance) else insuranceState,
+                    administrationTaxState = if (hasAdministrationTax) validateDecimalInput(
+                        administrationTax
+                    ) else administrationTaxState,
+                    referenceRateState = if (hasReferenceRate) validateDecimalInput(referenceRate) else referenceRateState
+                )
+            }
+        }
     }
 }

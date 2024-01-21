@@ -14,4 +14,5 @@ sealed class InputScreenUserEvents {
     data class AdministrationTaxChanged(val administrationTax: String) : InputScreenUserEvents()
     data class HasReferenceRateChanged(val hasReferenceRate: Boolean) : InputScreenUserEvents()
     data class ReferenceRateChanged(val referenceRate: String) : InputScreenUserEvents()
+    object SimulateButtonClicked: InputScreenUserEvents()
 }

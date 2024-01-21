@@ -1,7 +1,8 @@
 package com.alexkva.calculadorafinanciamento.navigation
 
 sealed class Screens(val route: String) {
-    object InputScreen: Screens("input_screen")
+    object InputScreen: Screens("input")
+    object SimulationScreen: Screens("simulation")
 
     fun withArgs(vararg args: Any): String {
         return buildString {

@@ -11,4 +11,10 @@
     <string name="administration_tax_description">Taxa fixa cobrada em todas as parcelas.</string>
     <string name="simulate_reference_rate_label">Simular TR</string>
     <string name="simulate_reference_rate_description">Correção do saldo pela Taxa Referencial (para financiamentos sem taxa fixa).</string>
+    <string name="insurance_label">Seguro</string>
+    <string name="reference_rate_label">Taxa Referencial</string>
+    <string name="simulate_label">Simular</string>
+
+    <string name="empty_input_error_text">Esse campo não pode ser vazio.</string>
+    <string name="invalid_chars_input_error_text">Esse campo possui caracteres inválidos.</string>
 </resources>
