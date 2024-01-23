@@ -1,22 +1,30 @@
 package com.alexkva.calculadorafinanciamento.ui.screens
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
+import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
-import com.alexkva.calculadorafinanciamento.business.use_cases.ValidateDecimalInput
+import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
+import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
-    val validateDecimalInput: ValidateDecimalInput
+    val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
+    val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
+    private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _inputState = MutableStateFlow(InputScreenState())
@@ -72,7 +80,7 @@ class InputScreenViewModel @Inject constructor(
                 validateInputFields()
                 if (inputState.value.isValidInput()) {
                     val simParams = inputState.value.toSimulationParameters()
-                    println(simParams)
+                    insertSimulationParameters(simParams)
                 } else {
                     println("Not Valid Input")
                 }
@@ -156,15 +164,27 @@ class InputScreenViewModel @Inject constructor(
         _inputState.update {
             it.run {
                 copy(
-                    amountFinancedState = validateDecimalInput(amountFinanced),
-                    annualInterestState = validateDecimalInput(annualInterest),
-                    termState = validateDecimalInput(term),
-                    insuranceState = if (hasInsurance) validateDecimalInput(insurance) else insuranceState,
-                    administrationTaxState = if (hasAdministrationTax) validateDecimalInput(
+                    amountFinancedState = validateDecimalInputUseCase(amountFinanced),
+                    annualInterestState = validateDecimalInputUseCase(annualInterest),
+                    termState = validateDecimalInputUseCase(term),
+                    insuranceState = if (hasInsurance) validateDecimalInputUseCase(insurance) else insuranceState,
+                    administrationTaxState = if (hasAdministrationTax) validateDecimalInputUseCase(
                         administrationTax
                     ) else administrationTaxState,
-                    referenceRateState = if (hasReferenceRate) validateDecimalInput(referenceRate) else referenceRateState
+                    referenceRateState = if (hasReferenceRate) validateDecimalInputUseCase(referenceRate) else referenceRateState
                 )
+            }
+        }
+    }
+
+    private fun insertSimulationParameters(simulationParameters: SimulationParameters) {
+        viewModelScope.launch(dispatcher) {
+            insertSimulationParametersUseCase(simulationParameters).collect { result ->
+                when (result) {
+                    is Resource.Loading -> {}
+                    is Resource.Success -> println(result.data)
+                    is Resource.Error -> println(result.message)
+                }
             }
         }
     }

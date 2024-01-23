@@ -1,7 +1,7 @@
-package com.alexkva.calculadorafinanciamento.business.use_cases
+package com.alexkva.calculadorafinanciamento.business.interfaces
 
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 
-interface ValidateDecimalInput {
+interface ValidateDecimalInputUseCase {
     operator fun invoke(input: String): InputStates
 }
