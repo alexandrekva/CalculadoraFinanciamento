@@ -2,14 +2,17 @@ package com.alexkva.calculadorafinanciamento.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.room.util.copy
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
+import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
+import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +32,10 @@ class InputScreenViewModel @Inject constructor(
 
     private val _inputState = MutableStateFlow(InputScreenState())
     val inputState = _inputState.asStateFlow()
+
+    private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
+    val uiEventState = _uiEventsState.asStateFlow()
+
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
         when (userEvent) {
@@ -171,7 +178,9 @@ class InputScreenViewModel @Inject constructor(
                     administrationTaxState = if (hasAdministrationTax) validateDecimalInputUseCase(
                         administrationTax
                     ) else administrationTaxState,
-                    referenceRateState = if (hasReferenceRate) validateDecimalInputUseCase(referenceRate) else referenceRateState
+                    referenceRateState = if (hasReferenceRate) validateDecimalInputUseCase(
+                        referenceRate
+                    ) else referenceRateState
                 )
             }
         }
@@ -182,10 +191,20 @@ class InputScreenViewModel @Inject constructor(
             insertSimulationParametersUseCase(simulationParameters).collect { result ->
                 when (result) {
                     is Resource.Loading -> {}
-                    is Resource.Success -> println(result.data)
+                    is Resource.Success -> _uiEventsState.emit(
+                        UiEvent.NavigationEvent(
+                            Screens.SimulationScreen.withArgs(result.data.toString()),
+                            ::onUiEventConsumed
+                        )
+                    )
+
                     is Resource.Error -> println(result.message)
                 }
             }
         }
+    }
+
+    private fun onUiEventConsumed() {
+        _uiEventsState.update { null }
     }
 }

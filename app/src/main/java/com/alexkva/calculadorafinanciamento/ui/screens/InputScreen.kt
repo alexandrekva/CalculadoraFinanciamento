@@ -42,13 +42,22 @@ import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextFie
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
 import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
+import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
+import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 
 @Composable
-fun InputScreenRoute(viewModel: InputScreenViewModel = hiltViewModel()) {
+fun InputScreenRoute(viewModel: InputScreenViewModel = hiltViewModel(), onNavigateTo: (String) -> Unit) {
     val inputState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
+
+
+    ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) {uiEvent ->
+        when (uiEvent) {
+            is UiEvent.NavigationEvent -> onNavigateTo(uiEvent.destination)
+        }
+    }
 
     InputScreen(
         inputState = inputState,

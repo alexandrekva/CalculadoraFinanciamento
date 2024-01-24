@@ -2,9 +2,12 @@ package com.alexkva.calculadorafinanciamento.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.alexkva.calculadorafinanciamento.ui.screens.InputScreenRoute
+import com.alexkva.calculadorafinanciamento.ui.screens.SimulationScreenRoute
 
 @Composable
 fun SetNavigation(
@@ -13,7 +16,13 @@ fun SetNavigation(
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
         composable(route = Screens.InputScreen.route) {
-            InputScreenRoute()
+            InputScreenRoute(onNavigateTo = { direction -> navController.navigate(direction) })
+        }
+        composable(
+            route = "${Screens.SimulationScreen.route}/{simulationId}", arguments = listOf(
+                navArgument("simulationId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            SimulationScreenRoute(backStackEntry.arguments?.getString("simulationId"))
         }
     }
 }
