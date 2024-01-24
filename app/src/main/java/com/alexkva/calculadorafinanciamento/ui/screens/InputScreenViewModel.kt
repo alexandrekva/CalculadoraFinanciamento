@@ -2,7 +2,6 @@ package com.alexkva.calculadorafinanciamento.ui.screens
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.copy
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
