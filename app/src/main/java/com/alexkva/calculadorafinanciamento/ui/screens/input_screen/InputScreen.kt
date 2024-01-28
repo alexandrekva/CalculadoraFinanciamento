@@ -82,166 +82,168 @@ private fun InputScreen(
         )
     }
 
-    Scaffold { paddingValues ->
-        Column(
-            Modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = null
-                ) { focusManager.clearFocus() }
-                .padding(paddingValues)
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            SegmentedButton(
-                buttonCollection = buttons,
-                selectedButton = inputState.financingType.label,
-                onButtonClick = {
-                    onUserEvent(InputScreenUserEvents.FinancingTypeChanged(it))
-                })
-
-            CurrencyOutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                inputValue = inputState.amountFinanced,
-                onValueChanged = {
-                    onUserEvent(InputScreenUserEvents.AmountFinancedChanged(it))
-                },
-                label = { Text(text = stringResource(id = R.string.financed_value_label)) },
-                inputState = inputState.amountFinancedState
-            )
-
-            PercentOutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                inputValue = inputState.annualInterest,
-                onValueChanged = {
-                    onUserEvent(InputScreenUserEvents.AnnualInterestChanged(it))
-                },
-                label = { Text(text = stringResource(id = R.string.annual_interest_label)) },
-                inputState = inputState.annualInterestState
-            )
-
-            OutlinedTextField(
-                modifier = Modifier.fillMaxWidth(),
-                value = inputState.term,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                onValueChange = {
-                    onUserEvent(
-                        InputScreenUserEvents.TermChanged(
-                            it.formatToNumericString().limitedCharacters(
-                                termOptionsCharLimit
-                            )
-                        )
-                    )
-                },
-                label = { Text(text = stringResource(id = R.string.term_label)) },
-                trailingIcon = {
-                    TextButton(onClick = {
-                        onUserEvent(
-                            InputScreenUserEvents.TermOptionChanged(
-                                inputState.termOption.inverse()
-                            )
-                        )
-                    }) {
-                        Text(text = inputState.termOption.label)
-                    }
-                },
-                isError = inputState.termState != InputStates.VALID,
-                supportingText = when (inputState.termState) {
-                    InputStates.VALID -> null
-                    InputStates.EMPTY -> {
-                        { Text(text = stringResource(id = R.string.empty_input_error_text)) }
-                    }
-
-                    InputStates.INVALID_CHARACTERS -> {
-                        { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) }
-                    }
-                }
-            )
-
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-            )
-
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+    with(inputState) {
+        Scaffold { paddingValues ->
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) { focusManager.clearFocus() }
+                    .padding(paddingValues)
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = stringResource(id = R.string.more_details),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                SegmentedButton(
+                    buttonCollection = buttons,
+                    selectedButton = financingType.label,
+                    onButtonClick = {
+                        onUserEvent(InputScreenUserEvents.FinancingTypeChanged(it))
+                    })
+
+                CurrencyOutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    inputValue = amountFinanced,
+                    onValueChanged = {
+                        onUserEvent(InputScreenUserEvents.AmountFinancedChanged(it))
+                    },
+                    label = { Text(text = stringResource(id = R.string.financed_value_label)) },
+                    inputState = amountFinancedState
                 )
-            }
 
-            LabeledSwitch(
-                label = stringResource(id = R.string.simulate_insurance_label),
-                description = stringResource(id = R.string.simulate_insurance_description),
-                isChecked = inputState.hasInsurance,
-                onCheckedChange = { onUserEvent(InputScreenUserEvents.HasInsuranceChanged(it)) })
+                PercentOutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    inputValue = annualInterest,
+                    onValueChanged = {
+                        onUserEvent(InputScreenUserEvents.AnnualInterestChanged(it))
+                    },
+                    label = { Text(text = stringResource(id = R.string.annual_interest_label)) },
+                    inputState = annualInterestState
+                )
 
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = term,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                    onValueChange = {
+                        onUserEvent(
+                            InputScreenUserEvents.TermChanged(
+                                it.formatToNumericString().limitedCharacters(
+                                    termOptionsCharLimit
+                                )
+                            )
+                        )
+                    },
+                    label = { Text(text = stringResource(id = R.string.term_label)) },
+                    trailingIcon = {
+                        TextButton(onClick = {
+                            onUserEvent(
+                                InputScreenUserEvents.TermOptionChanged(
+                                    termOption.inverse()
+                                )
+                            )
+                        }) {
+                            Text(text = termOption.label)
+                        }
+                    },
+                    isError = termState != InputStates.VALID,
+                    supportingText = when (termState) {
+                        InputStates.VALID -> null
+                        InputStates.EMPTY -> {
+                            { Text(text = stringResource(id = R.string.empty_input_error_text)) }
+                        }
 
-            LabeledSwitch(
-                label = stringResource(id = R.string.administration_tax_label),
-                description = stringResource(id = R.string.administration_tax_description),
-                isChecked = inputState.hasAdministrationTax,
-                onCheckedChange = { onUserEvent(InputScreenUserEvents.HasAdministrationTaxChanged(it)) })
+                        InputStates.INVALID_CHARACTERS -> {
+                            { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) }
+                        }
+                    }
+                )
 
-            LabeledSwitch(
-                label = stringResource(id = R.string.simulate_reference_rate_label),
-                description = stringResource(id = R.string.simulate_reference_rate_description),
-                isChecked = inputState.hasReferenceRate,
-                onCheckedChange = { onUserEvent(InputScreenUserEvents.HasReferenceRateChanged(it)) })
-
-            AnimatedVisibility(visible = inputState.hasOptionalInput()) {
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-            }
 
-            AnimatedVisibility(visible = inputState.hasInsurance) {
-                CurrencyOutlinedTextField(
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.more_details),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                LabeledSwitch(
+                    label = stringResource(id = R.string.simulate_insurance_label),
+                    description = stringResource(id = R.string.simulate_insurance_description),
+                    isChecked = hasInsurance,
+                    onCheckedChange = { onUserEvent(InputScreenUserEvents.HasInsuranceChanged(it)) })
+
+
+                LabeledSwitch(
+                    label = stringResource(id = R.string.administration_tax_label),
+                    description = stringResource(id = R.string.administration_tax_description),
+                    isChecked = hasAdministrationTax,
+                    onCheckedChange = { onUserEvent(InputScreenUserEvents.HasAdministrationTaxChanged(it)) })
+
+                LabeledSwitch(
+                    label = stringResource(id = R.string.simulate_reference_rate_label),
+                    description = stringResource(id = R.string.simulate_reference_rate_description),
+                    isChecked = hasReferenceRate,
+                    onCheckedChange = { onUserEvent(InputScreenUserEvents.HasReferenceRateChanged(it)) })
+
+                AnimatedVisibility(visible = hasOptionalInput()) {
+                    Divider(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    )
+                }
+
+                AnimatedVisibility(visible = hasInsurance) {
+                    CurrencyOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(id = R.string.insurance_label)) },
+                        inputValue = insurance,
+                        onValueChanged = { onUserEvent(InputScreenUserEvents.InsuranceChanged(it)) },
+                        inputState = insuranceState
+                    )
+                }
+
+                AnimatedVisibility(visible = hasAdministrationTax) {
+
+                    CurrencyOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(id = R.string.administration_tax_label)) },
+                        inputValue = administrationTax,
+                        onValueChanged = { onUserEvent(InputScreenUserEvents.AdministrationTaxChanged(it)) },
+                        inputState = administrationTaxState
+                    )
+                }
+
+                AnimatedVisibility(visible = hasReferenceRate) {
+                    PercentOutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(text = stringResource(id = R.string.reference_rate_label)) },
+                        inputValue = referenceRate,
+                        onValueChanged = { onUserEvent(InputScreenUserEvents.ReferenceRateChanged(it)) },
+                        inputState = referenceRateState
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                FilledTonalButton(
                     modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(id = R.string.insurance_label)) },
-                    inputValue = inputState.insurance,
-                    onValueChanged = { onUserEvent(InputScreenUserEvents.InsuranceChanged(it)) },
-                    inputState = inputState.insuranceState
-                )
-            }
-
-            AnimatedVisibility(visible = inputState.hasAdministrationTax) {
-
-                CurrencyOutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(id = R.string.administration_tax_label)) },
-                    inputValue = inputState.administrationTax,
-                    onValueChanged = { onUserEvent(InputScreenUserEvents.AdministrationTaxChanged(it)) },
-                    inputState = inputState.administrationTaxState
-                )
-            }
-
-            AnimatedVisibility(visible = inputState.hasReferenceRate) {
-                PercentOutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text(text = stringResource(id = R.string.reference_rate_label)) },
-                    inputValue = inputState.referenceRate,
-                    onValueChanged = { onUserEvent(InputScreenUserEvents.ReferenceRateChanged(it)) },
-                    inputState = inputState.referenceRateState
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            FilledTonalButton(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onUserEvent(InputScreenUserEvents.SimulateButtonClicked) }) {
-                Text(text = stringResource(id = R.string.simulate_label))
+                    onClick = { onUserEvent(InputScreenUserEvents.SimulateButtonClicked) }) {
+                    Text(text = stringResource(id = R.string.simulate_label))
+                }
             }
         }
     }

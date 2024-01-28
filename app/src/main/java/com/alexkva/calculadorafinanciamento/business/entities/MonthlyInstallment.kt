@@ -15,6 +15,4 @@ data class MonthlyInstallment(
 )
 
 @Immutable
-data class MonthlyInstallmentCollection(val monthlyInstallments: List<MonthlyInstallment>) {
-
-}
+data class MonthlyInstallmentCollection(val monthlyInstallments: List<MonthlyInstallment> = emptyList())

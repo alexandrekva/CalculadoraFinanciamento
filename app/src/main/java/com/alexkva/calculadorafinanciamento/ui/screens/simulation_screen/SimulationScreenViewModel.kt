@@ -7,19 +7,20 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingSimulatio
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParameterId
-import com.alexkva.calculadorafinanciamento.ui.screens.input_screen.InputScreenState
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
+import com.alexkva.calculadorafinanciamento.utils.constants.DECIMAL_FORMAT_PATTERN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
 import javax.inject.Inject
 
 @HiltViewModel
 class SimulationScreenViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val getSimulationParametersUseCase: GetSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -28,12 +29,13 @@ class SimulationScreenViewModel @Inject constructor(
     val simulationState = _simulationState.asStateFlow()
 
 
-init {
-    val simulationParameterId = savedStateHandle.get<String>("simulationId")
-    simulationParameterId?.let {
-        getSimulationParameters(it.toLong())
+    init {
+        val simulationParameterId = savedStateHandle.get<String>("simulationId")
+        simulationParameterId?.let {
+            getSimulationParameters(it.toLong())
+        }
     }
-}
+
     private fun getSimulationParameters(simulationParameterId: SimulationParameterId) {
         viewModelScope.launch(dispatcher) {
             getSimulationParametersUseCase(simulationParameterId).collect { result ->
@@ -47,9 +49,21 @@ init {
     }
 
     private fun doSimulation(simulationParameters: SimulationParameters) {
-        val financingSimulation = FinancingSimulation(simulationParameters)
-        val simulationResult = financingSimulation.simulate()
+        val simulation = FinancingSimulation.simulate(simulationParameters)
+        val decimalFormat = DecimalFormat(DECIMAL_FORMAT_PATTERN)
 
-        _simulationState.update { it.copy(isLoading = false, simulationResult = simulationResult) }
+        _simulationState.update { state ->
+            with(simulation) {
+                state.copy(
+                    isLoading = false,
+                    financingType = simulationParameters.financingType,
+                    termInMonths = simulationParameters.termInMonths,
+                    totalPaid = getTotalPaid(),
+                    totalPaidInInterests = getTotalPaidInInterests(),
+                    totalValueAdjustedByReferenceRate = getTotalValueAdjustedByReferenceRate(),
+                    monthlyInstallmentCollection = simulation.monthlyInstallmentCollection
+                )
+            }
+        }
     }
 }

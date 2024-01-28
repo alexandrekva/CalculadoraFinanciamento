@@ -23,4 +23,8 @@ data class SimulationParameters(
             referenceRate = referenceRate
         )
     }
+
+    fun toFinancingType(financingType: FinancingTypes): SimulationParameters {
+        return this.copy(financingType = financingType)
+    }
 }
