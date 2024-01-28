@@ -1,4 +1,4 @@
-package com.alexkva.calculadorafinanciamento.ui.screens
+package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -40,8 +40,6 @@ import com.alexkva.calculadorafinanciamento.ui.components.CurrencyOutlinedTextFi
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledSwitch
 import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
-import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
-import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
 import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
@@ -49,11 +47,14 @@ import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericStri
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 
 @Composable
-fun InputScreenRoute(viewModel: InputScreenViewModel = hiltViewModel(), onNavigateTo: (String) -> Unit) {
+fun InputScreenRoute(
+    viewModel: InputScreenViewModel = hiltViewModel(),
+    onNavigateTo: (String) -> Unit
+) {
     val inputState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
 
 
-    ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) {uiEvent ->
+    ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
             is UiEvent.NavigationEvent -> onNavigateTo(uiEvent.destination)
         }
@@ -150,8 +151,13 @@ private fun InputScreen(
                 isError = inputState.termState != InputStates.VALID,
                 supportingText = when (inputState.termState) {
                     InputStates.VALID -> null
-                    InputStates.EMPTY -> { { Text(text = stringResource(id = R.string.empty_input_error_text)) } }
-                    InputStates.INVALID_CHARACTERS -> { { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) } }
+                    InputStates.EMPTY -> {
+                        { Text(text = stringResource(id = R.string.empty_input_error_text)) }
+                    }
+
+                    InputStates.INVALID_CHARACTERS -> {
+                        { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) }
+                    }
                 }
             )
 

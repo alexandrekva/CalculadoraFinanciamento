@@ -14,6 +14,10 @@ fun String.toBigDecimalFromInput(): BigDecimal? {
     return toBigDecimalOrNull()?.divide(100.toBigDecimal())
 }
 
+fun String.toDoubleFromInput(): Double? {
+    return toDoubleOrNull()?.div(100)
+}
+
 fun String.limitedCharacters(maxLength: Int): String {
     return if (length > maxLength) substring(0, maxLength) else this
 }

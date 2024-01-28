@@ -1,4 +1,4 @@
-package com.alexkva.calculadorafinanciamento.ui.models
+package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 

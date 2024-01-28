@@ -6,8 +6,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.alexkva.calculadorafinanciamento.ui.screens.InputScreenRoute
-import com.alexkva.calculadorafinanciamento.ui.screens.SimulationScreenRoute
+import com.alexkva.calculadorafinanciamento.ui.screens.input_screen.InputScreenRoute
+import com.alexkva.calculadorafinanciamento.ui.screens.simulation_screen.SimulationScreenRoute
 
 @Composable
 fun SetNavigation(
@@ -21,8 +21,8 @@ fun SetNavigation(
         composable(
             route = "${Screens.SimulationScreen.route}/{simulationId}", arguments = listOf(
                 navArgument("simulationId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            SimulationScreenRoute(backStackEntry.arguments?.getString("simulationId"))
+        ) {
+            SimulationScreenRoute()
         }
     }
 }

@@ -16,7 +16,7 @@ data class SimulationParameterEntity(
     @ColumnInfo(name = "financing_type") val financingType: FinancingTypes,
     @ColumnInfo(name = "amount_financed") val amountFinanced: BigDecimal,
     @ColumnInfo(name = "annual_interest") val annualInterest: BigDecimal,
-    @ColumnInfo(name = "term_in_months") val termInMonths: Int,
+    @ColumnInfo(name = "term_in_months") val termInMonths: BigDecimal,
     @ColumnInfo(name = "insurance") val insurance: BigDecimal?,
     @ColumnInfo(name = "administration_tax") val administrationTax: BigDecimal?,
     @ColumnInfo(name = "reference_rate") val referenceRate: BigDecimal?

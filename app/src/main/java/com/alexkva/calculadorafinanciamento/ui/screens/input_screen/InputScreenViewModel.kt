@@ -1,4 +1,4 @@
-package com.alexkva.calculadorafinanciamento.ui.screens
+package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,8 +9,6 @@ import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.navigation.Screens
-import com.alexkva.calculadorafinanciamento.ui.models.InputScreenState
-import com.alexkva.calculadorafinanciamento.ui.models.InputScreenUserEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
@@ -24,8 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
-    val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
-    val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
+    private val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
+    private val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -196,7 +194,6 @@ class InputScreenViewModel @Inject constructor(
                             ::onUiEventConsumed
                         )
                     )
-
                     is Resource.Error -> println(result.message)
                 }
             }

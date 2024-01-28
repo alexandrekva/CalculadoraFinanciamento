@@ -1,4 +1,4 @@
-package com.alexkva.calculadorafinanciamento.ui.models
+package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
@@ -10,13 +10,13 @@ import java.math.BigDecimal
 data class InputScreenState(
     val financingType: FinancingTypes = FinancingTypes.SAC,
 
-    val amountFinanced: String = "",
+    val amountFinanced: String = "30000000",
     val amountFinancedState: InputStates = InputStates.VALID,
 
-    val annualInterest: String = "",
+    val annualInterest: String = "990",
     val annualInterestState: InputStates = InputStates.VALID,
 
-    val term: String = "",
+    val term: String = "30",
     val termOption: TermOptions = TermOptions.Years,
     val termState: InputStates = InputStates.VALID,
 
@@ -50,10 +50,10 @@ data class InputScreenState(
         return hasInsurance || hasAdministrationTax || hasReferenceRate
     }
 
-    private fun getTermInMonths(): Int {
+    private fun getTermInMonths(): BigDecimal {
         return when (termOption) {
-            is TermOptions.Months -> term.toInt()
-            is TermOptions.Years -> term.toInt() * 12
+            is TermOptions.Months -> term.toBigDecimal()
+            is TermOptions.Years -> term.toBigDecimal().multiply(BigDecimal(12))
         }
     }
 
