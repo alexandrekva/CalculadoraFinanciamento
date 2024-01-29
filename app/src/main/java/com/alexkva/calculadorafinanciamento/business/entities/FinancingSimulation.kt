@@ -17,53 +17,45 @@ class FinancingSimulation {
             }
         }
 
-        private fun simulatePrice(simulationParameters: SimulationParameters): SimulationResult {
+        private fun simulateSac(simulationParameters: SimulationParameters): SimulationResult {
             val monthlyInstallmentList = mutableListOf<MonthlyInstallment>()
 
             with(simulationParameters) {
                 val monthlyInterestRate = annualInterest.annualToMonthlyInterest()
-                val monthlyInterestRatePlus = monthlyInterestRate + BigDecimal.ONE
-                val monthlyInterestRatePlusByTerms =
-                    monthlyInterestRatePlus.pow(termInMonths.toInt(), defaultMathContext)
-                val dividend = monthlyInterestRatePlusByTerms.multiply(monthlyInterestRate, defaultMathContext)
-                val divisor = monthlyInterestRatePlusByTerms -  BigDecimal.ONE
+                val baseAmortization = getBaseAmortizationValueSac(this)
 
-                val multiplier = dividend.divide(divisor, defaultMathContext)
+                var updatedBalance = amountFinanced
+                var updatedAmortization = baseAmortization
 
-                var baseInstallment = amountFinanced.multiply(multiplier, defaultMathContext)
 
-                var remainingBalance = amountFinanced
 
                 for (currentMonth in 1..termInMonths.toInt()) {
-                    var monetaryCorrection = BigDecimal.ZERO
+                    val monetaryUpdate = getReferenceRateUpdate(
+                        value = updatedBalance,
+                        referenceRate = referenceRate
+                    )
+                    val amortizationUpdate = getReferenceRateUpdate(
+                        value = updatedAmortization,
+                        referenceRate = referenceRate
+                    )
 
-                    referenceRate?.let {
-                        monetaryCorrection = remainingBalance.multiply(it, defaultMathContext)
-                        baseInstallment += baseInstallment.multiply(
-                            it,
-                            defaultMathContext
-                        )
-                        remainingBalance += monetaryCorrection
-                    }
+                    updatedBalance += monetaryUpdate
+                    updatedAmortization += amortizationUpdate
 
                     val currentInterest =
-                        remainingBalance.multiply(monthlyInterestRate, defaultMathContext)
-                    val amortizationValue = baseInstallment - currentInterest
+                        updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
 
-                    remainingBalance -= amortizationValue
+                    updatedBalance -= updatedAmortization
 
                     monthlyInstallmentList.add(
-                        MonthlyInstallment(
-                            currentMonth,
-                            interests = currentInterest.setScale(2, RoundingMode.HALF_UP),
-                            amortization = amortizationValue.setScale(2, RoundingMode.HALF_UP),
-                            monetaryCorrection = monetaryCorrection.setScale(
-                                2,
-                                RoundingMode.HALF_UP
-                            ),
-                            administrationTax = administrationTax ?: BigDecimal.ZERO,
-                            insurance = insurance ?: BigDecimal.ZERO,
-                            remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP)
+                        constructRoundedMonthlyInstallmentSac(
+                            month = currentMonth,
+                            interests = currentInterest,
+                            amortization = updatedAmortization,
+                            remainingBalance = updatedBalance,
+                            monetaryUpdate = monetaryUpdate,
+                            insurance = insurance,
+                            administrationTax = administrationTax
                         )
                     )
                 }
@@ -72,46 +64,124 @@ class FinancingSimulation {
             return SimulationResult(MonthlyInstallmentCollection(monthlyInstallmentList))
         }
 
-        private fun simulateSac(simulationParameters: SimulationParameters): SimulationResult {
+        private fun simulatePrice(simulationParameters: SimulationParameters): SimulationResult {
             val monthlyInstallmentList = mutableListOf<MonthlyInstallment>()
 
             with(simulationParameters) {
-                var remainingBalance = amountFinanced
                 val monthlyInterestRate = annualInterest.annualToMonthlyInterest()
-                var amortizationValue = getBaseAmortizationValueSac(this)
+
+                val baseInstallment = calculatePriceMonthlyInstallment(
+                    amountFinanced = amountFinanced,
+                    monthlyInterestRate = monthlyInterestRate,
+                    termInMonths = termInMonths
+                )
+
+                var updatedInstallment = baseInstallment
+
+                var updatedBalance = amountFinanced
 
                 for (currentMonth in 1..termInMonths.toInt()) {
-                    var monetaryCorrection = BigDecimal.ZERO
+                    val monetaryUpdate = getReferenceRateUpdate(
+                        value = updatedBalance,
+                        referenceRate = referenceRate
+                    )
+                    val installmentUpdate = getReferenceRateUpdate(
+                        value = updatedInstallment,
+                        referenceRate = referenceRate
+                    )
 
-                    referenceRate?.let {
-                        monetaryCorrection = remainingBalance.multiply(it, defaultMathContext)
-                        amortizationValue += amortizationValue.multiply(it, defaultMathContext)
-                        remainingBalance += monetaryCorrection
-                    }
+                    updatedBalance += monetaryUpdate
+                    updatedInstallment += installmentUpdate
 
-                    val currentInterest =
-                        remainingBalance.multiply(monthlyInterestRate, defaultMathContext)
+                    val currentInterest = updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
+                    val currentAmortization = baseInstallment - currentInterest
 
-                    remainingBalance -= amortizationValue
+                    updatedBalance -= currentAmortization
 
                     monthlyInstallmentList.add(
-                        MonthlyInstallment(
-                            currentMonth,
-                            interests = currentInterest.setScale(2, RoundingMode.HALF_UP),
-                            amortization = amortizationValue.setScale(2, RoundingMode.HALF_UP),
-                            monetaryCorrection = monetaryCorrection.setScale(
-                                2,
-                                RoundingMode.HALF_UP
-                            ),
-                            administrationTax = administrationTax ?: BigDecimal.ZERO,
-                            insurance = insurance ?: BigDecimal.ZERO,
-                            remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP)
+                        constructRoundedMonthlyInstallmentPrice(
+                            month = currentMonth,
+                            interests = currentInterest,
+                            installment = updatedInstallment,
+                            amortization = currentAmortization,
+                            remainingBalance = updatedBalance,
+                            monetaryUpdate = monetaryUpdate,
+                            insurance = insurance,
+                            administrationTax = administrationTax
                         )
                     )
                 }
             }
-
             return SimulationResult(MonthlyInstallmentCollection(monthlyInstallmentList))
+        }
+
+        private fun calculatePriceMonthlyInstallment(
+            amountFinanced: BigDecimal,
+            monthlyInterestRate: BigDecimal,
+            termInMonths: BigDecimal
+        ): BigDecimal {
+            val monthlyInterestRatePlus = monthlyInterestRate + BigDecimal.ONE
+            val monthlyInterestRatePlusByTerms =
+                monthlyInterestRatePlus.pow(termInMonths.toInt(), defaultMathContext)
+            val dividend =
+                monthlyInterestRatePlusByTerms.multiply(monthlyInterestRate, defaultMathContext)
+            val divisor = monthlyInterestRatePlusByTerms - BigDecimal.ONE
+            val multiplicand = dividend.divide(divisor, defaultMathContext)
+
+            return amountFinanced.multiply(multiplicand)
+        }
+
+        private fun getReferenceRateUpdate(
+            value: BigDecimal,
+            referenceRate: BigDecimal?
+        ): BigDecimal {
+            return referenceRate?.let { value.multiply(it, defaultMathContext) } ?: BigDecimal.ZERO
+        }
+
+        private fun constructRoundedMonthlyInstallmentPrice(
+            month: Int,
+            interests: BigDecimal,
+            installment: BigDecimal,
+            amortization: BigDecimal,
+            remainingBalance: BigDecimal,
+            monetaryUpdate: BigDecimal,
+            insurance: BigDecimal?,
+            administrationTax: BigDecimal?
+        ): MonthlyInstallment {
+            return MonthlyInstallment(
+                month = month,
+                interests = interests.setScale(2, RoundingMode.HALF_UP),
+                installment = installment.setScale(2, RoundingMode.HALF_UP),
+                amortization = amortization.setScale(2, RoundingMode.HALF_UP),
+                remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP),
+                monetaryUpdate = monetaryUpdate.setScale(2, RoundingMode.HALF_UP)
+                    ?: BigDecimal.ZERO,
+                insurance = insurance?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO,
+                administrationTax = administrationTax?.setScale(2, RoundingMode.HALF_UP)
+                    ?: BigDecimal.ZERO
+            )
+        }
+
+        private fun constructRoundedMonthlyInstallmentSac(
+            month: Int,
+            interests: BigDecimal,
+            amortization: BigDecimal,
+            remainingBalance: BigDecimal,
+            monetaryUpdate: BigDecimal,
+            insurance: BigDecimal?,
+            administrationTax: BigDecimal?
+        ): MonthlyInstallment {
+            return MonthlyInstallment(
+                month = month,
+                interests = interests.setScale(2, RoundingMode.HALF_UP),
+                amortization = amortization.setScale(2, RoundingMode.HALF_UP),
+                remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP),
+                monetaryUpdate = monetaryUpdate.setScale(2, RoundingMode.HALF_UP)
+                    ?: BigDecimal.ZERO,
+                insurance = insurance?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO,
+                administrationTax = administrationTax?.setScale(2, RoundingMode.HALF_UP)
+                    ?: BigDecimal.ZERO
+            )
         }
 
         private fun getBaseAmortizationValueSac(simulationParameters: SimulationParameters): BigDecimal {

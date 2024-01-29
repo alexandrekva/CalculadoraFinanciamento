@@ -17,7 +17,7 @@ data class SimulationResult(
     }
 
     fun getTotalValueAdjustedByReferenceRate(): BigDecimal {
-        return monthlyInstallmentCollection.monthlyInstallments.sumOf { it.monetaryCorrection}
+        return monthlyInstallmentCollection.monthlyInstallments.sumOf { it.monetaryUpdate}
     }
 
 }

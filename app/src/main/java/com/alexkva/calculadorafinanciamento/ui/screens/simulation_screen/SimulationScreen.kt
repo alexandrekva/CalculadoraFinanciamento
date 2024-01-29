@@ -79,7 +79,7 @@ private fun PreviewSimulationScreen() {
                     month = 1,
                     interests = BigDecimal.TEN,
                     amortization = BigDecimal.ONE,
-                    monetaryCorrection = BigDecimal.ONE,
+                    monetaryUpdate = BigDecimal.ONE,
                     administrationTax = BigDecimal.ONE,
                     insurance = BigDecimal.ONE,
                     installment = BigDecimal.ONE,
