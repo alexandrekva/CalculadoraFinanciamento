@@ -15,6 +15,24 @@
     <string name="reference_rate_label">Taxa Referencial</string>
     <string name="simulate_label">Simular</string>
 
+    <string name="total_paid_interests_label">Total pago em juros</string>
+    <string name="total_paid_label">Total pago</string>
+    <string name="total_monetary_update_label">Correção monetária total</string>
+
     <string name="empty_input_error_text">Esse campo não pode ser vazio.</string>
     <string name="invalid_chars_input_error_text">Esse campo possui caracteres inválidos.</string>
+    <string name="invalid_input_error_text">Valor inválido.</string>
+    <string name="term_invalid_input_error_text">O prazo não pode ser 0 ou menor.</string>
+
+    <string name="installment_Label">Parcela %1$d</string>
+    <string name="currency_label">R$ %1$s</string>
+
+    <string name="amortization_currency_value">Amortização: R$ %1$s</string>
+    <string name="interests_currency_value">Juros: R$ %1$s</string>
+    <string name="monetary_update_currency_value">Correção monetária: R$ %1$s</string>
+    <string name="insurance_currency_value">Seguro: R$ %1$s</string>
+    <string name="administration_tax_currency_value">Taxa de administração: R$ %1$s</string>
+
+
+    <string name="default_currency_symbol">R$</string>
 </resources>

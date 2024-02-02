@@ -159,13 +159,17 @@ private fun InputScreen(
                         InputStates.INVALID_CHARACTERS -> {
                             { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) }
                         }
+
+                        InputStates.INVALID_INPUT -> {
+                            { Text(text = stringResource(id = R.string.term_invalid_input_error_text)) }
+                        }
                     }
                 )
 
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp)
+                        .padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -203,7 +207,7 @@ private fun InputScreen(
                     Divider(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
+                            .padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 

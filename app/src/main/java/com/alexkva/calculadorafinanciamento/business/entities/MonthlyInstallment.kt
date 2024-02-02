@@ -8,10 +8,11 @@ data class MonthlyInstallment(
     val month: Int = 0,
     val interests: BigDecimal = BigDecimal.ZERO,
     val amortization: BigDecimal = BigDecimal.ZERO,
-    val monetaryUpdate: BigDecimal = BigDecimal.ZERO,
-    val administrationTax: BigDecimal = BigDecimal.ZERO,
-    val insurance: BigDecimal = BigDecimal.ZERO,
-    val installment: BigDecimal = interests + amortization + administrationTax + insurance,
+    val monetaryUpdate: BigDecimal? = null,
+    val administrationTax: BigDecimal? = null,
+    val insurance: BigDecimal? = null,
+    val installment: BigDecimal = interests + amortization + (administrationTax
+        ?: BigDecimal.ZERO) + (insurance ?: BigDecimal.ZERO),
     val remainingBalance: BigDecimal = BigDecimal.ZERO
 ) {
     fun getAmortizationInterestsRelation(): BigDecimal {

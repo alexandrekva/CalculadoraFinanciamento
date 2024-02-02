@@ -5,9 +5,11 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationPar
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.SimulationParametersRepository
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.InsertSimulationParameterUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.ValidateDecimalInputUseCaseImpl
+import com.alexkva.calculadorafinanciamento.business.use_cases.ValidateTermUseCaseImpl
 import com.alexkva.calculadorafinanciamento.data.local.AppDatabase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersDao
 import com.alexkva.calculadorafinanciamento.data.repositories.SimulationParametersRepositoryImpl
@@ -30,6 +32,11 @@ object AppModule {
     @Provides
     fun provideValidateDecimalInput(): ValidateDecimalInputUseCase {
         return ValidateDecimalInputUseCaseImpl()
+    }
+
+    @Provides
+    fun provideValidateTerm(): ValidateTermUseCase {
+        return ValidateTermUseCaseImpl()
     }
 
     @Provides

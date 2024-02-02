@@ -5,7 +5,7 @@ import java.math.BigDecimal
 import java.text.DecimalFormat
 import kotlin.math.pow
 
-fun BigDecimal.toInputString(): String {
+fun BigDecimal.toFormattedString(): String {
     val formatter = DecimalFormat(DECIMAL_FORMAT_PATTERN)
     return formatter.format(this)
 }

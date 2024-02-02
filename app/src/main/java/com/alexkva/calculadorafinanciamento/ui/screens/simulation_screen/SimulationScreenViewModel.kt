@@ -8,14 +8,12 @@ import com.alexkva.calculadorafinanciamento.business.entities.SimulationParamete
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParameterId
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
-import com.alexkva.calculadorafinanciamento.utils.constants.DECIMAL_FORMAT_PATTERN
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.DecimalFormat
 import javax.inject.Inject
 
 @HiltViewModel
@@ -50,17 +48,17 @@ class SimulationScreenViewModel @Inject constructor(
 
     private fun doSimulation(simulationParameters: SimulationParameters) {
         val simulation = FinancingSimulation.simulate(simulationParameters)
-        val decimalFormat = DecimalFormat(DECIMAL_FORMAT_PATTERN)
 
         _simulationState.update { state ->
             with(simulation) {
                 state.copy(
                     isLoading = false,
                     financingType = simulationParameters.financingType,
+                    amountFinanced = simulationParameters.amountFinanced,
                     termInMonths = simulationParameters.termInMonths,
                     totalPaid = getTotalPaid(),
                     totalPaidInInterests = getTotalPaidInInterests(),
-                    totalValueAdjustedByReferenceRate = getTotalValueAdjustedByReferenceRate(),
+                    totalMonetaryUpdate = getTotalMonetaryUpdate(),
                     monthlyInstallmentCollection = simulation.monthlyInstallmentCollection
                 )
             }

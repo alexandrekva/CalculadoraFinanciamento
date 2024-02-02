@@ -3,8 +3,9 @@ package com.alexkva.calculadorafinanciamento.ui.components
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
-import com.alexkva.calculadorafinanciamento.utils.classes.Currency
 import com.alexkva.calculadorafinanciamento.utils.classes.DecimalValueInputVisualTransformation
 
 @Composable
@@ -14,10 +15,10 @@ fun CurrencyOutlinedTextField(
     inputValue: String,
     onValueChanged: (String) -> Unit,
     inputState: InputStates,
-    currency: Currency = Currency.BRAZILIAN_REAL,
     supportingText: @Composable (() -> Unit)? = null,
 ) {
-    val currencyIcon: @Composable (() -> Unit) = { Text(text = currency.symbol) }
+    val currencySymbol = stringResource(id = R.string.default_currency_symbol)
+    val currencyIcon: @Composable (() -> Unit) = { Text(text = currencySymbol) }
 
     DecimalOutlinedTextField(
         modifier = modifier,

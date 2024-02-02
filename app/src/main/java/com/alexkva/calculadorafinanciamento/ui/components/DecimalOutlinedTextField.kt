@@ -40,6 +40,7 @@ fun DecimalOutlinedTextField(
         InputStates.VALID -> null
         InputStates.EMPTY -> { { Text(text = stringResource(id = R.string.empty_input_error_text)) } }
         InputStates.INVALID_CHARACTERS -> { { Text(text = stringResource(id = R.string.invalid_chars_input_error_text)) } }
+        InputStates.INVALID_INPUT -> { { Text(text = stringResource(id = R.string.invalid_input_error_text)) } }
     }
 
     OutlinedTextField(

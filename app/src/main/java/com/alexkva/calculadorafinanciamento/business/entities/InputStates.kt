@@ -1,5 +1,5 @@
 package com.alexkva.calculadorafinanciamento.business.entities
 
 enum class InputStates {
-    VALID, INVALID_CHARACTERS, EMPTY
+    VALID, INVALID_CHARACTERS, EMPTY, INVALID_INPUT
 }

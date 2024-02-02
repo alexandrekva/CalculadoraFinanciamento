@@ -8,6 +8,7 @@ import com.alexkva.calculadorafinanciamento.business.entities.SimulationParamete
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
     private val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
+    private val validateTermUseCase: ValidateTermUseCase,
     private val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -170,7 +172,7 @@ class InputScreenViewModel @Inject constructor(
                 copy(
                     amountFinancedState = validateDecimalInputUseCase(amountFinanced),
                     annualInterestState = validateDecimalInputUseCase(annualInterest),
-                    termState = validateDecimalInputUseCase(term),
+                    termState = validateTermUseCase(term),
                     insuranceState = if (hasInsurance) validateDecimalInputUseCase(insurance) else insuranceState,
                     administrationTaxState = if (hasAdministrationTax) validateDecimalInputUseCase(
                         administrationTax

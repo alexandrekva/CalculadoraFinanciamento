@@ -16,8 +16,10 @@ data class SimulationResult(
         return monthlyInstallmentCollection.monthlyInstallments.sumOf { it.interests }
     }
 
-    fun getTotalValueAdjustedByReferenceRate(): BigDecimal {
-        return monthlyInstallmentCollection.monthlyInstallments.sumOf { it.monetaryUpdate}
+    fun getTotalMonetaryUpdate(): BigDecimal? {
+        return monthlyInstallmentCollection.monthlyInstallments.sumOf {
+            it.monetaryUpdate ?: return null
+        }
     }
 
 }

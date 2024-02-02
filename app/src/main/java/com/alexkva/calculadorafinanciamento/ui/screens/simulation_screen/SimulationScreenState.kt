@@ -8,8 +8,9 @@ data class SimulationScreenState(
     val isLoading: Boolean = true,
     val termInMonths: BigDecimal = BigDecimal.ZERO,
     val financingType: FinancingTypes = FinancingTypes.SAC,
+    val amountFinanced: BigDecimal = BigDecimal.ZERO,
     val totalPaid: BigDecimal = BigDecimal.ZERO,
     val totalPaidInInterests: BigDecimal = BigDecimal.ZERO,
-    val totalValueAdjustedByReferenceRate: BigDecimal = BigDecimal.ZERO,
+    val totalMonetaryUpdate: BigDecimal? = null,
     val monthlyInstallmentCollection: MonthlyInstallmentCollection = MonthlyInstallmentCollection()
 )

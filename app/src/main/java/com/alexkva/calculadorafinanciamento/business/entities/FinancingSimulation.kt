@@ -93,7 +93,8 @@ class FinancingSimulation {
                     updatedBalance += monetaryUpdate
                     updatedInstallment += installmentUpdate
 
-                    val currentInterest = updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
+                    val currentInterest =
+                        updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
                     val currentAmortization = baseInstallment - currentInterest
 
                     updatedBalance -= currentAmortization
@@ -144,7 +145,7 @@ class FinancingSimulation {
             installment: BigDecimal,
             amortization: BigDecimal,
             remainingBalance: BigDecimal,
-            monetaryUpdate: BigDecimal,
+            monetaryUpdate: BigDecimal?,
             insurance: BigDecimal?,
             administrationTax: BigDecimal?
         ): MonthlyInstallment {
@@ -154,11 +155,9 @@ class FinancingSimulation {
                 installment = installment.setScale(2, RoundingMode.HALF_UP),
                 amortization = amortization.setScale(2, RoundingMode.HALF_UP),
                 remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP),
-                monetaryUpdate = monetaryUpdate.setScale(2, RoundingMode.HALF_UP)
-                    ?: BigDecimal.ZERO,
-                insurance = insurance?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO,
+                monetaryUpdate = monetaryUpdate?.setScale(2, RoundingMode.HALF_UP),
+                insurance = insurance?.setScale(2, RoundingMode.HALF_UP),
                 administrationTax = administrationTax?.setScale(2, RoundingMode.HALF_UP)
-                    ?: BigDecimal.ZERO
             )
         }
 
@@ -167,7 +166,7 @@ class FinancingSimulation {
             interests: BigDecimal,
             amortization: BigDecimal,
             remainingBalance: BigDecimal,
-            monetaryUpdate: BigDecimal,
+            monetaryUpdate: BigDecimal?,
             insurance: BigDecimal?,
             administrationTax: BigDecimal?
         ): MonthlyInstallment {
@@ -176,11 +175,9 @@ class FinancingSimulation {
                 interests = interests.setScale(2, RoundingMode.HALF_UP),
                 amortization = amortization.setScale(2, RoundingMode.HALF_UP),
                 remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP),
-                monetaryUpdate = monetaryUpdate.setScale(2, RoundingMode.HALF_UP)
-                    ?: BigDecimal.ZERO,
-                insurance = insurance?.setScale(2, RoundingMode.HALF_UP) ?: BigDecimal.ZERO,
+                monetaryUpdate = monetaryUpdate?.setScale(2, RoundingMode.HALF_UP),
+                insurance = insurance?.setScale(2, RoundingMode.HALF_UP),
                 administrationTax = administrationTax?.setScale(2, RoundingMode.HALF_UP)
-                    ?: BigDecimal.ZERO
             )
         }
 

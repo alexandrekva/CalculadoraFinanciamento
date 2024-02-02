@@ -4,13 +4,13 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import com.alexkva.calculadorafinanciamento.utils.extensions.toBigDecimalFromInput
-import com.alexkva.calculadorafinanciamento.utils.extensions.toInputString
+import com.alexkva.calculadorafinanciamento.utils.extensions.toFormattedString
 
 class DecimalValueInputVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
 
         val transformedText = text.text.takeIf { it.isNotEmpty() }?.run {
-            toBigDecimalFromInput()?.toInputString() ?: ERROR_STRING
+            toBigDecimalFromInput()?.toFormattedString() ?: ERROR_STRING
         } ?: EMPTY_STRING
 
         val annotatedString = AnnotatedString(
