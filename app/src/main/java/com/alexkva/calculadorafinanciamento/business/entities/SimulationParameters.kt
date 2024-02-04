@@ -7,7 +7,7 @@ data class SimulationParameters(
     val financingType: FinancingTypes,
     val amountFinanced: BigDecimal,
     val annualInterest: BigDecimal,
-    val termInMonths: BigDecimal,
+    val termInMonths: Int,
     val insurance: BigDecimal? = null,
     val administrationTax: BigDecimal? = null,
     val referenceRate: BigDecimal? = null

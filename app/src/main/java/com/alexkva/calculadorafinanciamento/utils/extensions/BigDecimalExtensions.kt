@@ -11,5 +11,5 @@ fun BigDecimal.toFormattedString(): String {
 }
 
 fun BigDecimal.annualToMonthlyInterest(): BigDecimal {
-    return BigDecimal((1 + this.toDouble()).pow(1.0/12) -1)
+        return BigDecimal((1 + this.toDouble()).pow(1.0/12) -1)
 }

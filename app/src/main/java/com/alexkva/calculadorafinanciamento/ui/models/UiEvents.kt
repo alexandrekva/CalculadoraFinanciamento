@@ -18,7 +18,7 @@ open class UiEvent(val onConsumed: () -> Unit) {
 fun ObserveUiEvents(uiEventsFlow: StateFlow<UiEvent?>, onEvent: (UiEvent) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(uiEventsFlow, lifecycleOwner) {
+    LaunchedEffect(Unit, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             uiEventsFlow.filterNotNull().collect {
                 onEvent(it)

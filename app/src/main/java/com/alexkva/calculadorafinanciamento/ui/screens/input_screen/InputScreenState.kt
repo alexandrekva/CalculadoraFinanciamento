@@ -10,13 +10,13 @@ import java.math.BigDecimal
 data class InputScreenState(
     val financingType: FinancingTypes = FinancingTypes.SAC,
 
-    val amountFinanced: String = "30000000",
+    val amountFinanced: String = "",
     val amountFinancedState: InputStates = InputStates.VALID,
 
-    val annualInterest: String = "990",
+    val annualInterest: String = "",
     val annualInterestState: InputStates = InputStates.VALID,
 
-    val term: String = "30",
+    val term: String = "",
     val termOption: TermOptions = TermOptions.Years,
     val termState: InputStates = InputStates.VALID,
 
@@ -37,11 +37,9 @@ data class InputScreenState(
                 annualInterestState == InputStates.VALID &&
                 termState == InputStates.VALID
 
-        val insuranceValid = !hasInsurance || (hasInsurance && insuranceState == InputStates.VALID)
-        val administrationTaxValid =
-            !hasAdministrationTax || (hasAdministrationTax && administrationTaxState == InputStates.VALID)
-        val referenceRateValid =
-            !hasReferenceRate || (hasReferenceRate && referenceRateState == InputStates.VALID)
+        val insuranceValid = !hasInsurance || insuranceState == InputStates.VALID
+        val administrationTaxValid = !hasAdministrationTax || administrationTaxState == InputStates.VALID
+        val referenceRateValid = !hasReferenceRate || referenceRateState == InputStates.VALID
 
         return mandatoryFieldsValid && insuranceValid && administrationTaxValid && referenceRateValid
     }
@@ -50,10 +48,10 @@ data class InputScreenState(
         return hasInsurance || hasAdministrationTax || hasReferenceRate
     }
 
-    private fun getTermInMonths(): BigDecimal {
+    private fun getTermInMonths(): Int {
         return when (termOption) {
-            is TermOptions.Months -> term.toBigDecimal()
-            is TermOptions.Years -> term.toBigDecimal().multiply(BigDecimal(12))
+            is TermOptions.Months -> term.toInt()
+            is TermOptions.Years -> term.toInt() * 12
         }
     }
 

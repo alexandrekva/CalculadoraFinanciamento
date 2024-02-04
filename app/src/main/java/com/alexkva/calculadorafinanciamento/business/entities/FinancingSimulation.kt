@@ -27,20 +27,17 @@ class FinancingSimulation {
                 var updatedBalance = amountFinanced
                 var updatedAmortization = baseAmortization
 
+                for (currentMonth in 1..termInMonths) {
+                    val monetaryUpdate = referenceRate?.let {
+                        updatedBalance.multiply(it, defaultMathContext)
+                    }
 
+                    val amortizationUpdate = referenceRate?.let {
+                        updatedAmortization.multiply(it, defaultMathContext)
+                    }
 
-                for (currentMonth in 1..termInMonths.toInt()) {
-                    val monetaryUpdate = getReferenceRateUpdate(
-                        value = updatedBalance,
-                        referenceRate = referenceRate
-                    )
-                    val amortizationUpdate = getReferenceRateUpdate(
-                        value = updatedAmortization,
-                        referenceRate = referenceRate
-                    )
-
-                    updatedBalance += monetaryUpdate
-                    updatedAmortization += amortizationUpdate
+                    monetaryUpdate?.let { updatedBalance += it }
+                    amortizationUpdate?.let { updatedAmortization += it }
 
                     val currentInterest =
                         updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
@@ -80,22 +77,21 @@ class FinancingSimulation {
 
                 var updatedBalance = amountFinanced
 
-                for (currentMonth in 1..termInMonths.toInt()) {
-                    val monetaryUpdate = getReferenceRateUpdate(
-                        value = updatedBalance,
-                        referenceRate = referenceRate
-                    )
-                    val installmentUpdate = getReferenceRateUpdate(
-                        value = updatedInstallment,
-                        referenceRate = referenceRate
-                    )
+                for (currentMonth in 1..termInMonths) {
+                    val monetaryUpdate = referenceRate?.let {
+                        updatedBalance.multiply(it, defaultMathContext)
+                    }
 
-                    updatedBalance += monetaryUpdate
-                    updatedInstallment += installmentUpdate
+                    val installmentUpdate = referenceRate?.let {
+                        updatedInstallment.multiply(it, defaultMathContext)
+                    }
+
+                    monetaryUpdate?.let { updatedBalance += it }
+                    installmentUpdate?.let { updatedInstallment += it }
 
                     val currentInterest =
                         updatedBalance.multiply(monthlyInterestRate, defaultMathContext)
-                    val currentAmortization = baseInstallment - currentInterest
+                    val currentAmortization = updatedInstallment - currentInterest
 
                     updatedBalance -= currentAmortization
 
@@ -103,7 +99,6 @@ class FinancingSimulation {
                         constructRoundedMonthlyInstallmentPrice(
                             month = currentMonth,
                             interests = currentInterest,
-                            installment = updatedInstallment,
                             amortization = currentAmortization,
                             remainingBalance = updatedBalance,
                             monetaryUpdate = monetaryUpdate,
@@ -119,30 +114,23 @@ class FinancingSimulation {
         private fun calculatePriceMonthlyInstallment(
             amountFinanced: BigDecimal,
             monthlyInterestRate: BigDecimal,
-            termInMonths: BigDecimal
+            termInMonths: Int
         ): BigDecimal {
-            val monthlyInterestRatePlus = monthlyInterestRate + BigDecimal.ONE
-            val monthlyInterestRatePlusByTerms =
-                monthlyInterestRatePlus.pow(termInMonths.toInt(), defaultMathContext)
-            val dividend =
-                monthlyInterestRatePlusByTerms.multiply(monthlyInterestRate, defaultMathContext)
-            val divisor = monthlyInterestRatePlusByTerms - BigDecimal.ONE
-            val multiplicand = dividend.divide(divisor, defaultMathContext)
 
-            return amountFinanced.multiply(multiplicand)
-        }
+            val numerator = monthlyInterestRate.multiply(amountFinanced, defaultMathContext)
 
-        private fun getReferenceRateUpdate(
-            value: BigDecimal,
-            referenceRate: BigDecimal?
-        ): BigDecimal {
-            return referenceRate?.let { value.multiply(it, defaultMathContext) } ?: BigDecimal.ZERO
+            val denominator =
+                BigDecimal.ONE.add(monthlyInterestRate).pow(-termInMonths, defaultMathContext)
+                    .subtract(
+                        BigDecimal.ONE
+                    )
+
+            return -numerator.divide(denominator, defaultMathContext)
         }
 
         private fun constructRoundedMonthlyInstallmentPrice(
             month: Int,
             interests: BigDecimal,
-            installment: BigDecimal,
             amortization: BigDecimal,
             remainingBalance: BigDecimal,
             monetaryUpdate: BigDecimal?,
@@ -152,7 +140,6 @@ class FinancingSimulation {
             return MonthlyInstallment(
                 month = month,
                 interests = interests.setScale(2, RoundingMode.HALF_UP),
-                installment = installment.setScale(2, RoundingMode.HALF_UP),
                 amortization = amortization.setScale(2, RoundingMode.HALF_UP),
                 remainingBalance = remainingBalance.setScale(2, RoundingMode.HALF_UP),
                 monetaryUpdate = monetaryUpdate?.setScale(2, RoundingMode.HALF_UP),
@@ -183,7 +170,7 @@ class FinancingSimulation {
 
         private fun getBaseAmortizationValueSac(simulationParameters: SimulationParameters): BigDecimal {
             with(simulationParameters) {
-                return amountFinanced.divide(termInMonths, defaultMathContext)
+                return amountFinanced.divide(BigDecimal(termInMonths), defaultMathContext)
             }
         }
     }

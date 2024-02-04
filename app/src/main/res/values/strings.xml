@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">CalculadoraFinanciamento</string>
-    <string name="financed_value_label">Valor Financiado</string>
-    <string name="annual_interest_label">Juros Anual</string>
+    <string name="financed_value_label">Valor financiado</string>
+    <string name="annual_interest_label">Juros anual</string>
     <string name="term_label">Prazo</string>
     <string name="term_support_text">Toque no tipo de prazo escolhido para alternar entre anos ou meses </string>
     <string name="more_details"> Mais detalhes</string>
-    <string name="simulate_insurance_label">Simular Seguro</string>
+    <string name="simulate_insurance_label">Simular seguro</string>
     <string name="simulate_insurance_description">Os seguros são obrigatórios em um financiamento.</string>
-    <string name="administration_tax_label">Taxa de Administração</string>
+    <string name="administration_tax_label">Taxa de administração</string>
     <string name="administration_tax_description">Taxa fixa cobrada em todas as parcelas.</string>
     <string name="simulate_reference_rate_label">Simular TR</string>
     <string name="simulate_reference_rate_description">Correção do saldo pela Taxa Referencial (para financiamentos sem taxa fixa).</string>
     <string name="insurance_label">Seguro</string>
-    <string name="reference_rate_label">Taxa Referencial</string>
+    <string name="reference_rate_label">Taxa referencial</string>
     <string name="simulate_label">Simular</string>
 
     <string name="total_paid_interests_label">Total pago em juros</string>
@@ -25,13 +25,17 @@
     <string name="term_invalid_input_error_text">O prazo não pode ser 0 ou menor.</string>
 
     <string name="installment_Label">Parcela %1$d</string>
-    <string name="currency_label">R$ %1$s</string>
+    <string name="currency_value">R$ %1$s</string>
+
+    <string name="first_installment_label">Primeira parcela</string>
+    <string name="last_installment_label">Última parcela</string>
 
     <string name="amortization_currency_value">Amortização: R$ %1$s</string>
     <string name="interests_currency_value">Juros: R$ %1$s</string>
     <string name="monetary_update_currency_value">Correção monetária: R$ %1$s</string>
     <string name="insurance_currency_value">Seguro: R$ %1$s</string>
     <string name="administration_tax_currency_value">Taxa de administração: R$ %1$s</string>
+    <string name="remaining_balance_currency_value">Saldo remanescente: R$ %1$s</string>
 
 
     <string name="default_currency_symbol">R$</string>
