@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexkva.calculadorafinanciamento.R
-import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.ui.components.CurrencyOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledSwitch
@@ -42,7 +41,6 @@ import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextFie
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
 import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
-import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 
@@ -76,12 +74,6 @@ private fun InputScreen(
     val termOptionsCharLimit = inputState.termOption.charLimit
     val scrollState = rememberScrollState()
 
-    val buttons = remember {
-        SegmentedButtonBuilder.buildByFinancingTypes(
-            FinancingTypes.entries
-        )
-    }
-
     with(inputState) {
         Scaffold { paddingValues ->
             Column(
@@ -98,10 +90,10 @@ private fun InputScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 SegmentedButton(
-                    buttonCollection = buttons,
-                    selectedButton = financingType.label,
+                    buttonCollection = segmentedButtons,
+                    selectedButton = selectedSegmentedButton,
                     onButtonClick = {
-                        onUserEvent(InputScreenUserEvents.FinancingTypeChanged(it))
+                        onUserEvent(InputScreenUserEvents.SegmentedButtonChanged(it))
                     })
 
                 CurrencyOutlinedTextField(
@@ -151,7 +143,9 @@ private fun InputScreen(
                     },
                     isError = termState != InputStates.VALID,
                     supportingText = when (termState) {
-                        InputStates.VALID -> null
+                        InputStates.VALID -> {
+                            { Text(text = stringResource(id = R.string.term_support_text))}
+                        }
                         InputStates.EMPTY -> {
                             { Text(text = stringResource(id = R.string.empty_input_error_text)) }
                         }

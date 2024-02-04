@@ -4,11 +4,16 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
+import com.alexkva.calculadorafinanciamento.ui.models.SegmentedButtonCollection
+import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
 import com.alexkva.calculadorafinanciamento.utils.extensions.toBigDecimalFromInput
 import java.math.BigDecimal
 
 data class InputScreenState(
-    val financingType: FinancingTypes = FinancingTypes.SAC,
+    val segmentedButtons: SegmentedButtonCollection =
+        SegmentedButtonBuilder.buildByFinancingTypes(FinancingTypes.entries),
+
+    val selectedSegmentedButton: Int = 0,
 
     val amountFinanced: String = "",
     val amountFinancedState: InputStates = InputStates.VALID,
@@ -38,7 +43,8 @@ data class InputScreenState(
                 termState == InputStates.VALID
 
         val insuranceValid = !hasInsurance || insuranceState == InputStates.VALID
-        val administrationTaxValid = !hasAdministrationTax || administrationTaxState == InputStates.VALID
+        val administrationTaxValid =
+            !hasAdministrationTax || administrationTaxState == InputStates.VALID
         val referenceRateValid = !hasReferenceRate || referenceRateState == InputStates.VALID
 
         return mandatoryFieldsValid && insuranceValid && administrationTaxValid && referenceRateValid
@@ -68,7 +74,7 @@ data class InputScreenState(
             ?.divide(BigDecimal(100)) else null
     }
 
-    fun toSimulationParameters(): SimulationParameters {
+    fun toSimulationParameters(financingType: FinancingTypes): SimulationParameters {
         return SimulationParameters(
             financingType = financingType,
             amountFinanced = amountFinanced.toBigDecimalFromInput() ?: BigDecimal.ZERO,

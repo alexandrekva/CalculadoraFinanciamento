@@ -12,6 +12,7 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseC
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
+import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.enums.EnumEntries
 
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
@@ -29,7 +31,13 @@ class InputScreenViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    private val _inputState = MutableStateFlow(InputScreenState())
+    private val financingTypes: EnumEntries<FinancingTypes> = FinancingTypes.entries
+
+    private val _inputState = MutableStateFlow(
+        InputScreenState(
+            segmentedButtons = SegmentedButtonBuilder.buildByFinancingTypes(financingTypes)
+        )
+    )
     val inputState = _inputState.asStateFlow()
 
     private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
@@ -38,8 +46,8 @@ class InputScreenViewModel @Inject constructor(
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
         when (userEvent) {
-            is InputScreenUserEvents.FinancingTypeChanged -> {
-                updateFinancingType(FinancingTypes.valueOf(userEvent.financingType.uppercase()))
+            is InputScreenUserEvents.SegmentedButtonChanged -> {
+                updateSelectedButton(userEvent.selectedButtonIndex)
             }
 
             is InputScreenUserEvents.TermOptionChanged -> {
@@ -84,18 +92,19 @@ class InputScreenViewModel @Inject constructor(
 
             is InputScreenUserEvents.SimulateButtonClicked -> {
                 validateInputFields()
+
                 if (inputState.value.isValidInput()) {
-                    val simParams = inputState.value.toSimulationParameters()
+                    val simParams = inputState.value.toSimulationParameters(
+                        getFinancingTypeBySelectedButton()
+                    )
                     insertSimulationParameters(simParams)
-                } else {
-                    println("Not Valid Input")
                 }
             }
         }
     }
 
-    private fun updateFinancingType(financingType: FinancingTypes) {
-        _inputState.update { it.copy(financingType = financingType) }
+    private fun updateSelectedButton(selectedButtonIndex: Int) {
+        _inputState.update { it.copy(selectedSegmentedButton = selectedButtonIndex) }
     }
 
     private fun updateTermOption(termOption: TermOptions) {
@@ -196,10 +205,15 @@ class InputScreenViewModel @Inject constructor(
                             ::onUiEventConsumed
                         )
                     )
+
                     is Resource.Error -> println(result.message)
                 }
             }
         }
+    }
+
+    private fun getFinancingTypeBySelectedButton(): FinancingTypes {
+        return financingTypes[inputState.value.selectedSegmentedButton]
     }
 
     private fun onUiEventConsumed() {
