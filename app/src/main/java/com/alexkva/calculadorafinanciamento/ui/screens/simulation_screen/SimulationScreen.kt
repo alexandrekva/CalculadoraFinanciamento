@@ -221,8 +221,6 @@ private fun MonthlyInstallmentItem(monthlyInstallment: MonthlyInstallment) {
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-
-
             }
 
             Spacer(modifier = Modifier.height(8.dp))
