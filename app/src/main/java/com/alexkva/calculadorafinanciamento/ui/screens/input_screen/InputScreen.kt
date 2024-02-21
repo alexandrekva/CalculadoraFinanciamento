@@ -19,11 +19,15 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
@@ -43,6 +47,7 @@ import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
+import kotlinx.coroutines.launch
 
 @Composable
 fun InputScreenRoute(
@@ -50,23 +55,34 @@ fun InputScreenRoute(
     onNavigateTo: (String) -> Unit
 ) {
     val inputState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
-
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
             is UiEvent.NavigationEvent -> onNavigateTo(uiEvent.destination)
+            is UiEvent.ShowSnackbar -> scope.launch {
+                when (snackbarHostState.showSnackbar(uiEvent.snackbarVisuals)) {
+                    SnackbarResult.ActionPerformed -> {
+                        viewModel.onUserEvent(InputScreenUserEvents.LastSimulationClicked(uiEvent.simulationParameters))
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 
     InputScreen(
         inputState = inputState,
-        onUserEvent = viewModel::onUserEvent
+        onUserEvent = viewModel::onUserEvent,
+        snackbarHostState = snackbarHostState
     )
 }
 
 @Composable
 private fun InputScreen(
     inputState: InputScreenState,
+    snackbarHostState: SnackbarHostState,
     onUserEvent: (InputScreenUserEvents) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
@@ -75,7 +91,11 @@ private fun InputScreen(
     val scrollState = rememberScrollState()
 
     with(inputState) {
-        Scaffold { paddingValues ->
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            }
+        ) { paddingValues ->
             Column(
                 Modifier
                     .fillMaxSize()
@@ -144,8 +164,9 @@ private fun InputScreen(
                     isError = termState != InputStates.VALID,
                     supportingText = when (termState) {
                         InputStates.VALID -> {
-                            { Text(text = stringResource(id = R.string.term_support_text))}
+                            { Text(text = stringResource(id = R.string.term_support_text)) }
                         }
+
                         InputStates.EMPTY -> {
                             { Text(text = stringResource(id = R.string.empty_input_error_text)) }
                         }
@@ -189,7 +210,13 @@ private fun InputScreen(
                     label = stringResource(id = R.string.administration_tax_label),
                     description = stringResource(id = R.string.administration_tax_description),
                     isChecked = hasAdministrationTax,
-                    onCheckedChange = { onUserEvent(InputScreenUserEvents.HasAdministrationTaxChanged(it)) })
+                    onCheckedChange = {
+                        onUserEvent(
+                            InputScreenUserEvents.HasAdministrationTaxChanged(
+                                it
+                            )
+                        )
+                    })
 
                 LabeledSwitch(
                     label = stringResource(id = R.string.simulate_reference_rate_label),
@@ -221,7 +248,13 @@ private fun InputScreen(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(text = stringResource(id = R.string.administration_tax_label)) },
                         inputValue = administrationTax,
-                        onValueChanged = { onUserEvent(InputScreenUserEvents.AdministrationTaxChanged(it)) },
+                        onValueChanged = {
+                            onUserEvent(
+                                InputScreenUserEvents.AdministrationTaxChanged(
+                                    it
+                                )
+                            )
+                        },
                         inputState = administrationTaxState
                     )
                 }
@@ -250,7 +283,11 @@ private fun InputScreen(
 @Preview(showSystemUi = true, showBackground = true, name = "Default Preview")
 @Composable
 private fun PreviewInoutScreen() {
-    InputScreen(inputState = InputScreenState(), onUserEvent = {})
+    InputScreen(
+        inputState = InputScreenState(),
+        onUserEvent = {},
+        snackbarHostState = SnackbarHostState()
+    )
 }
 
 

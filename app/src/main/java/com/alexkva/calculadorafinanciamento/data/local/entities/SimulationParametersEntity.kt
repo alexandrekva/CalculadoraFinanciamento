@@ -9,7 +9,7 @@ import java.math.BigDecimal
 import javax.annotation.Nonnull
 
 @Entity(tableName = "simulation_parameters")
-data class SimulationParameterEntity(
+data class SimulationParametersEntity(
     @PrimaryKey(autoGenerate = true)
     @Nonnull
     @ColumnInfo(name = "id") val uid: Long = 0,

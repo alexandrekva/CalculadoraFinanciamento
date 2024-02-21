@@ -36,7 +36,11 @@
     <string name="insurance_currency_value">Seguro: R$ %1$s</string>
     <string name="administration_tax_currency_value">Taxa de administração: R$ %1$s</string>
     <string name="remaining_balance_currency_value">Saldo remanescente: R$ %1$s</string>
-
+    <string name="compare_label">Comparar com %1$s</string>
 
     <string name="default_currency_symbol">R$</string>
+    <string name="exclamation_point">!</string>
+
+    <string name="amortization_relation_legend">O círculo ao lado do número da parcela mostra como a quantia amortizada se relaciona com o valor total da parcela. Quanto mais verde o círculo, menos juros estão sendo pagos; quanto mais vermelho, mais juros estão sendo pagos.</string>
+    <string name="balance_increasing_legend">O ponto de exclamação ao lado do número da parcela indica que o saldo devedor está aumentando porque o valor amortizado naquele mês foi menor do que a correção monetária.</string>
 </resources>

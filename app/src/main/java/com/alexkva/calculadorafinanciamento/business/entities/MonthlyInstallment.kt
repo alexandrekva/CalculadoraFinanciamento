@@ -15,7 +15,11 @@ data class MonthlyInstallment(
     val remainingBalance: BigDecimal = BigDecimal.ZERO
 ) {
     fun isBalanceIncreasing(): Boolean {
-        return amortization < monetaryUpdate
+        return monetaryUpdate?.let { amortization < it } ?: false
+    }
+
+    fun amortizationRelation(): Float {
+        return amortization.divide(installment, 2).toFloat()
     }
 }
 

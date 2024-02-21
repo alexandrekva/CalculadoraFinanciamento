@@ -10,6 +10,16 @@ fun BigDecimal.toFormattedString(): String {
     return formatter.format(this)
 }
 
+fun BigDecimal.fromPercentToString(): String {
+    val multipliedValue = this.multiply(BigDecimal(10000))
+    return multipliedValue.toString()
+}
+
+fun BigDecimal.fromDecimalToString(): String {
+    val multipliedValue = this.multiply(BigDecimal(100))
+    return multipliedValue.toString()
+}
+
 fun BigDecimal.annualToMonthlyInterest(): BigDecimal {
         return BigDecimal((1 + this.toDouble()).pow(1.0/12) -1)
 }

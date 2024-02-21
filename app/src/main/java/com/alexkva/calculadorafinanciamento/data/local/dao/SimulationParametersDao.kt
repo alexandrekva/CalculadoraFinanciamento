@@ -3,15 +3,18 @@ package com.alexkva.calculadorafinanciamento.data.local.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParameterEntity
+import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParametersEntity
 
-typealias SimulationParameterId = Long
+typealias SimulationParametersId = Long
 
 @Dao
 interface SimulationParametersDao {
-    @Query("SELECT * FROM simulation_parameters WHERE id = :simulationParameterId LIMIT 1")
-    fun findSimulationParameterById(simulationParameterId: SimulationParameterId): SimulationParameterEntity?
+    @Query("SELECT * FROM simulation_parameters WHERE id = :simulationParametersId LIMIT 1")
+    fun findSimulationParametersById(simulationParametersId: SimulationParametersId): SimulationParametersEntity?
 
     @Insert
-    fun insertSimulationParameter(simulationParameter: SimulationParameterEntity): SimulationParameterId
+    fun insertSimulationParameters(simulationParameter: SimulationParametersEntity): SimulationParametersId
+
+    @Query("SELECT * FROM simulation_parameters ORDER BY id DESC LIMIT 1")
+    fun getLastInsertedSimulationParameters(): SimulationParametersEntity?
 }

@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingSimulation
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
-import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParameterId
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,9 +34,9 @@ class SimulationScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getSimulationParameters(simulationParameterId: SimulationParameterId) {
+    private fun getSimulationParameters(simulationParametersId: SimulationParametersId) {
         viewModelScope.launch(dispatcher) {
-            getSimulationParametersUseCase(simulationParameterId).collect { result ->
+            getSimulationParametersUseCase(simulationParametersId).collect { result ->
                 when (result) {
                     is Resource.Loading -> println(result.message)
                     is Resource.Success -> doSimulation(result.data)

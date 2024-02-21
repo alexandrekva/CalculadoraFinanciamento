@@ -2,7 +2,7 @@ package com.alexkva.calculadorafinanciamento.data.repositories
 
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.SimulationParametersRepository
-import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParameterId
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersDao
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +14,11 @@ class SimulationParametersRepositoryImpl @Inject constructor(
     private val dao: SimulationParametersDao
 ) : SimulationParametersRepository {
 
-    override fun getSimulationParameterById(simulationParameterId: SimulationParameterId): Flow<Resource<SimulationParameters>> =
+    override fun getSimulationParametersById(targetUid: SimulationParametersId): Flow<Resource<SimulationParameters>> =
         flow {
             emit(Resource.Loading())
 
-            val result = dao.findSimulationParameterById(simulationParameterId)
+            val result = dao.findSimulationParametersById(targetUid)
             result?.let {
                 emit(Resource.Success(it.toDomain()))
             } ?: emit(Resource.Error("Nenhum item encontrado"))
@@ -26,11 +26,25 @@ class SimulationParametersRepositoryImpl @Inject constructor(
             emit(Resource.Error("Erro ao obter o parâmetro de simulação: ${e.message}"))
         }
 
-    override fun insertSimulationParameter(simulationParameter: SimulationParameters): Flow<Resource<SimulationParameterId>> =
-        flow<Resource<Long>> {
-            val result = dao.insertSimulationParameter(simulationParameter.toEntity())
+    override fun insertSimulationParameters(simulationParameter: SimulationParameters): Flow<Resource<SimulationParametersId>> =
+        flow {
+            emit(Resource.Loading())
+
+            val result = dao.insertSimulationParameters(simulationParameter.toEntity())
             emit(Resource.Success(result))
         }.catch { e ->
             emit(Resource.Error("Erro ao inserir item no BD: ${e.message}"))
+        }
+
+    override fun getLastSimulationParameters(): Flow<Resource<SimulationParameters>> =
+        flow {
+            emit(Resource.Loading())
+
+            val result = dao.getLastInsertedSimulationParameters()
+            result?.let {
+                emit(Resource.Success(it.toDomain()))
+            } ?: emit(Resource.Error("Nenhum item encontrado"))
+        }.catch { e ->
+            emit(Resource.Error("Erro o recuperar item do BD: ${e.message}"))
         }
 }

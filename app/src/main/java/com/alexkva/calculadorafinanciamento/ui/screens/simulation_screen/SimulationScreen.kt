@@ -2,7 +2,6 @@ package com.alexkva.calculadorafinanciamento.ui.screens.simulation_screen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +11,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -21,6 +22,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -40,6 +42,7 @@ import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallment
 import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallmentCollection
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledInfo
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
+import com.alexkva.calculadorafinanciamento.utils.classes.ColorGenerator
 import com.alexkva.calculadorafinanciamento.utils.extensions.toFormattedString
 import java.math.BigDecimal
 
@@ -64,11 +67,14 @@ private fun SimulationScreen(simulationScreenState: SimulationScreenState) {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surface)
                         .padding(paddingValues)
+                        .padding(horizontal = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
 
                 ) {
                     item {
+                        Spacer(modifier = Modifier.height(16.dp))
                         SimulationHeader(
                             financingType = financingType,
                             termInMonths = termInMonths,
@@ -82,8 +88,16 @@ private fun SimulationScreen(simulationScreenState: SimulationScreenState) {
                     item {
                         FirstAndLastInstallment(
                             firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
-                            lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last()
+                            lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
+                            compareLabel = stringResource(
+                                id = R.string.compare_label,
+                                simulationScreenState.financingType.inverse().label
+                            )
                         )
+                    }
+
+                    item {
+                        InfoSection()
                     }
 
                     itemsIndexed(monthlyInstallmentCollection.monthlyInstallments) { index, monthlyInstallment ->
@@ -92,8 +106,8 @@ private fun SimulationScreen(simulationScreenState: SimulationScreenState) {
                             Divider(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 24.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    .padding(top = 12.dp),
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -115,13 +129,15 @@ private fun SimulationHeader(
     Column(
         Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = "${financingType.label} $termInMonths",
             style = MaterialTheme.typography.displaySmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
             fontWeight = FontWeight.Bold
         )
 
@@ -163,15 +179,14 @@ private fun SimulationHeader(
 @Composable
 private fun FirstAndLastInstallment(
     firstInstallment: MonthlyInstallment,
-    lastInstallment: MonthlyInstallment
+    lastInstallment: MonthlyInstallment,
+    compareLabel: String
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .border(2.dp, MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
             .padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         CompositionLocalProvider(
@@ -191,9 +206,32 @@ private fun FirstAndLastInstallment(
                 )
             )
 
+            TextButton(modifier = Modifier.align(Alignment.End), onClick = { /*TODO*/ }) {
+                Text(text = compareLabel)
+            }
         }
     }
 }
+
+@Composable
+private fun InfoSection() {
+    Column(
+        modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = stringResource(id = R.string.amortization_relation_legend),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+
+        Text(
+            text = stringResource(id = R.string.balance_increasing_legend),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+    }
+}
+
 
 @Composable
 private fun MonthlyInstallmentItem(monthlyInstallment: MonthlyInstallment) {
@@ -201,29 +239,51 @@ private fun MonthlyInstallmentItem(monthlyInstallment: MonthlyInstallment) {
         Column(
             Modifier
                 .fillMaxWidth()
-                .padding(24.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = stringResource(id = R.string.installment_Label, month),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = stringResource(id = R.string.installment_Label, month),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (monthlyInstallment.isBalanceIncreasing()) {
+                        Text(
+                            modifier = Modifier.padding(start = 16.dp),
+                            text = stringResource(id = R.string.exclamation_point),
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.ExtraBold
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .padding(start = 16.dp)
+                                .size(16.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    ColorGenerator.generateByAmortizationRelation(
+                                        monthlyInstallment.amortizationRelation()
+                                    )
+                                )
+                        )
+                    }
+                }
+
                 Text(
                     text = stringResource(
                         id = R.string.currency_value,
                         installment.toFormattedString()
                     ), style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(
@@ -290,6 +350,7 @@ private fun MonthlyInstallmentItem(monthlyInstallment: MonthlyInstallment) {
 }
 
 @Preview(showBackground = true, wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
+@Preview(showBackground = true, wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE)
 @Preview(
     showBackground = true,
     wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
@@ -311,7 +372,7 @@ private fun PreviewSimulationScreen() {
                         month = 1,
                         interests = BigDecimal.TEN,
                         amortization = BigDecimal.ONE,
-                        monetaryUpdate = BigDecimal.ONE,
+                        monetaryUpdate = BigDecimal(10),
                         administrationTax = BigDecimal.ONE,
                         insurance = BigDecimal.ONE,
                         installment = BigDecimal(100000.50),
@@ -333,6 +394,4 @@ private fun PreviewSimulationScreen() {
 
         SimulationScreen(simulationScreenState = simulationScreenState)
     }
-
-
 }

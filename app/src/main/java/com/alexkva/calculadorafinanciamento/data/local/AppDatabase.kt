@@ -6,10 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersDao
-import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParameterEntity
+import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParametersEntity
 import com.alexkva.calculadorafinanciamento.data.local.utils.Converters
 
-@Database(entities = [SimulationParameterEntity::class], version = 1)
+@Database(entities = [SimulationParametersEntity::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun simulationParametersDao(): SimulationParametersDao

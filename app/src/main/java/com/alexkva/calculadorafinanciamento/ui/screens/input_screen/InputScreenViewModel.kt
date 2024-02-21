@@ -1,18 +1,23 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
+import com.alexkva.calculadorafinanciamento.business.interfaces.GetLastSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
 import com.alexkva.calculadorafinanciamento.navigation.Screens
+import com.alexkva.calculadorafinanciamento.ui.models.CustomSnackbarVisuals
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
+import com.alexkva.calculadorafinanciamento.utils.extensions.fromDecimalToString
+import com.alexkva.calculadorafinanciamento.utils.extensions.fromPercentToString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,6 +33,7 @@ class InputScreenViewModel @Inject constructor(
     private val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
     private val validateTermUseCase: ValidateTermUseCase,
     private val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
+    private val getLastSimulationParametersUseCase: GetLastSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -42,6 +48,30 @@ class InputScreenViewModel @Inject constructor(
 
     private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
     val uiEventState = _uiEventsState.asStateFlow()
+
+    init {
+        viewModelScope.launch(dispatcher) {
+            getLastSimulationParametersUseCase().collect { result ->
+                when (result) {
+                    is Resource.Loading -> {}
+                    is Resource.Success -> _uiEventsState.emit(
+                        UiEvent.ShowSnackbar(
+                            snackbarVisuals = CustomSnackbarVisuals(
+                                message = "Deseja continuar a última simulação?",
+                                actionLabel = "Sim",
+                                withDismissAction = true,
+                                duration = SnackbarDuration.Indefinite
+                            ),
+                            simulationParameters = result.data,
+                            ::onUiEventConsumed
+                        )
+                    )
+
+                    is Resource.Error -> println(result.message)
+                }
+            }
+        }
+    }
 
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
@@ -99,6 +129,10 @@ class InputScreenViewModel @Inject constructor(
                     )
                     insertSimulationParameters(simParams)
                 }
+            }
+
+            is InputScreenUserEvents.LastSimulationClicked -> {
+                updateSimulationParameters(userEvent.simulationParameters)
             }
         }
     }
@@ -172,6 +206,29 @@ class InputScreenViewModel @Inject constructor(
                 referenceRate = referenceRate,
                 referenceRateState = InputStates.VALID
             )
+        }
+    }
+
+    private fun updateSimulationParameters(simulationParameters: SimulationParameters) {
+        _inputState.update {
+            with(simulationParameters) {
+                it.copy(
+                    selectedSegmentedButton = financingTypes.indexOf(financingType),
+                    amountFinanced = amountFinanced.fromDecimalToString(),
+                    amountFinancedState = InputStates.VALID,
+                    annualInterest = annualInterest.fromPercentToString(),
+                    annualInterestState = InputStates.VALID,
+                    termOption = TermOptions.Months,
+                    term = termInMonths.toString(),
+                    termState = InputStates.VALID,
+                    hasInsurance = insurance != null,
+                    insurance = insurance?.fromDecimalToString() ?: "",
+                    hasAdministrationTax = administrationTax != null,
+                    administrationTax = administrationTax?.fromDecimalToString() ?: "",
+                    hasReferenceRate = referenceRate != null,
+                    referenceRate = referenceRate?.fromPercentToString() ?: ""
+                )
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 package com.alexkva.calculadorafinanciamento.business.entities
 
-import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParameterEntity
+import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParametersEntity
 import java.math.BigDecimal
 
 data class SimulationParameters(
@@ -12,8 +12,8 @@ data class SimulationParameters(
     val administrationTax: BigDecimal? = null,
     val referenceRate: BigDecimal? = null
 ) {
-    fun toEntity(): SimulationParameterEntity {
-        return SimulationParameterEntity(
+    fun toEntity(): SimulationParametersEntity {
+        return SimulationParametersEntity(
             financingType = financingType,
             amountFinanced = amountFinanced,
             annualInterest = annualInterest,

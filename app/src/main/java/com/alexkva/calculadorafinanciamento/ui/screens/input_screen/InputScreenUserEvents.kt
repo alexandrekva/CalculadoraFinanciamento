@@ -1,5 +1,6 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
+import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 
 sealed class InputScreenUserEvents {
@@ -10,9 +11,13 @@ sealed class InputScreenUserEvents {
     data class TermOptionChanged(val termOption: TermOptions) : InputScreenUserEvents()
     data class HasInsuranceChanged(val hasInsurance: Boolean) : InputScreenUserEvents()
     data class InsuranceChanged(val insurance: String) : InputScreenUserEvents()
-    data class HasAdministrationTaxChanged(val hasAdministrationTax: Boolean) : InputScreenUserEvents()
+    data class HasAdministrationTaxChanged(val hasAdministrationTax: Boolean) :
+        InputScreenUserEvents()
+
     data class AdministrationTaxChanged(val administrationTax: String) : InputScreenUserEvents()
     data class HasReferenceRateChanged(val hasReferenceRate: Boolean) : InputScreenUserEvents()
     data class ReferenceRateChanged(val referenceRate: String) : InputScreenUserEvents()
-    data object SimulateButtonClicked: InputScreenUserEvents()
+    data object SimulateButtonClicked : InputScreenUserEvents()
+    data class LastSimulationClicked(val simulationParameters: SimulationParameters) :
+        InputScreenUserEvents()
 }
