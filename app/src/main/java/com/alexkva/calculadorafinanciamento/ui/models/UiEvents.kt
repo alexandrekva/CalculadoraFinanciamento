@@ -6,18 +6,21 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 
 
 open class UiEvent(val onConsumed: () -> Unit) {
-    data class NavigationEvent(val destination: String, val onConsumedAction: () -> Unit) :
+    data class Navigation(val destination: String, val onConsumedAction: () -> Unit) :
+        UiEvent(onConsumed = onConsumedAction)
+
+    data class NavigateBack(val onConsumedAction: () -> Unit) :
         UiEvent(onConsumed = onConsumedAction)
 
     data class ShowSnackbar(
         val snackbarVisuals: SnackbarVisuals,
-        val simulationParameters: SimulationParameters,
+        val onActionPerformed: () -> Unit = {},
+        val onDismissed: () -> Unit = {},
         val onConsumedAction: () -> Unit
     ) :
         UiEvent(onConsumed = onConsumedAction)

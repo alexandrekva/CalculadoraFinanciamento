@@ -60,10 +60,16 @@ class InputScreenViewModel @Inject constructor(
                                 message = "Deseja continuar a última simulação?",
                                 actionLabel = "Sim",
                                 withDismissAction = true,
-                                duration = SnackbarDuration.Indefinite
+                                duration = SnackbarDuration.Short
                             ),
-                            simulationParameters = result.data,
-                            ::onUiEventConsumed
+                            onActionPerformed = {
+                                onUserEvent(
+                                    InputScreenUserEvents.LastSimulationClicked(
+                                        result.data
+                                    )
+                                )
+                            },
+                            onConsumedAction = ::onUiEventConsumed
                         )
                     )
 
@@ -76,6 +82,14 @@ class InputScreenViewModel @Inject constructor(
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
         when (userEvent) {
+            is InputScreenUserEvents.DropdownMenuButtonClicked -> {
+                updateDropdownMenu()
+            }
+
+            is InputScreenUserEvents.DropdownMenuClosed -> {
+                updateDropdownMenu(false)
+            }
+
             is InputScreenUserEvents.SegmentedButtonChanged -> {
                 updateSelectedButton(userEvent.selectedButtonIndex)
             }
@@ -134,7 +148,31 @@ class InputScreenViewModel @Inject constructor(
             is InputScreenUserEvents.LastSimulationClicked -> {
                 updateSimulationParameters(userEvent.simulationParameters)
             }
+
+            is InputScreenUserEvents.LogButtonClicked -> {
+                updateDropdownMenu(false)
+                navigateToLog()
+            }
         }
+    }
+
+    private fun navigateToLog() {
+        viewModelScope.launch(dispatcher) {
+            _uiEventsState.emit(
+                UiEvent.Navigation(
+                    Screens.LogScreen.route,
+                    ::onUiEventConsumed
+                )
+            )
+        }
+    }
+
+    private fun updateDropdownMenu() {
+        _inputState.update { it.copy(isDropdownMenuExpanded = !it.isDropdownMenuExpanded) }
+    }
+
+    private fun updateDropdownMenu(isDropdownMenuExpanded: Boolean) {
+        _inputState.update { it.copy(isDropdownMenuExpanded = isDropdownMenuExpanded) }
     }
 
     private fun updateSelectedButton(selectedButtonIndex: Int) {
@@ -257,7 +295,7 @@ class InputScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> {}
                     is Resource.Success -> _uiEventsState.emit(
-                        UiEvent.NavigationEvent(
+                        UiEvent.Navigation(
                             Screens.SimulationScreen.withArgs(result.data.toString()),
                             ::onUiEventConsumed
                         )

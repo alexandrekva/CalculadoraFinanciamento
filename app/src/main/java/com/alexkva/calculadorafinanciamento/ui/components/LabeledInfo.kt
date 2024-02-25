@@ -19,11 +19,11 @@ fun LabeledInfo(
     labelColor: Color = Color.Unspecified,
     infoColor: Color = Color.Unspecified
 ) {
-    val labelTextColor = labelColor.takeOrElse {
+    val definedLabelColor = labelColor.takeOrElse {
         LocalContentColor.current
     }
 
-    val infoTextColor = infoColor.takeOrElse {
+    val definedInfoColor = infoColor.takeOrElse {
         LocalContentColor.current
     }
 
@@ -31,12 +31,12 @@ fun LabeledInfo(
         Text(
             text = label,
             style = MaterialTheme.typography.labelMedium,
-            color = labelTextColor
+            color = definedLabelColor
         )
         Text(
             text = info,
             style = MaterialTheme.typography.headlineMedium,
-            color = infoTextColor,
+            color = definedInfoColor,
             fontWeight = FontWeight.Bold
         )
     }

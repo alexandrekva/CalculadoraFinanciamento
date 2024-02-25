@@ -4,12 +4,17 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
+import com.alexkva.calculadorafinanciamento.ui.models.MenuItemCollection
+import com.alexkva.calculadorafinanciamento.ui.models.MenuItemModel
 import com.alexkva.calculadorafinanciamento.ui.models.SegmentedButtonCollection
 import com.alexkva.calculadorafinanciamento.utils.classes.SegmentedButtonBuilder
 import com.alexkva.calculadorafinanciamento.utils.extensions.toBigDecimalFromInput
 import java.math.BigDecimal
 
 data class InputScreenState(
+    val isDropdownMenuExpanded: Boolean = false,
+    val menuItemCollection: MenuItemCollection = MenuItemCollection(listOf(MenuItemModel("Histórico"))),
+
     val segmentedButtons: SegmentedButtonCollection =
         SegmentedButtonBuilder.buildByFinancingTypes(FinancingTypes.entries),
 

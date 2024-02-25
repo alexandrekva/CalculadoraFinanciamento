@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">CalculadoraFinanciamento</string>
+    
+    <string name="financing_simulation_label">Simulador de financiamento</string>
+    <string name="log_label">Histórico</string>
+    <string name="empty_log_label">Histórico vazio</string>
+    <string name="clear_label">Limpar</string>
+
     <string name="financed_value_label">Valor financiado</string>
     <string name="annual_interest_label">Juros anual</string>
     <string name="term_label">Prazo</string>
@@ -33,10 +39,14 @@
     <string name="amortization_currency_value">Amortização: R$ %1$s</string>
     <string name="interests_currency_value">Juros: R$ %1$s</string>
     <string name="monetary_update_currency_value">Correção monetária: R$ %1$s</string>
+    <string name="monetary_update_value">Correção monetária: %1$s</string>
     <string name="insurance_currency_value">Seguro: R$ %1$s</string>
     <string name="administration_tax_currency_value">Taxa de administração: R$ %1$s</string>
     <string name="remaining_balance_currency_value">Saldo remanescente: R$ %1$s</string>
+    <string name="amount_financed_currency_value">Valor financiado: R$ %1$s</string>
     <string name="compare_label">Comparar com %1$s</string>
+    <string name="months_label">%1$s meses</string>
+    <string name="annual_interest_with_value">Juros anuais: %1$s</string>
 
     <string name="default_currency_symbol">R$</string>
     <string name="exclamation_point">!</string>

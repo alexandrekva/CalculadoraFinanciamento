@@ -7,6 +7,7 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingSimulatio
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
+import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -26,6 +27,8 @@ class SimulationScreenViewModel @Inject constructor(
     private val _simulationState = MutableStateFlow(SimulationScreenState())
     val simulationState = _simulationState.asStateFlow()
 
+    private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
+    val uiEventState = _uiEventsState.asStateFlow()
 
     init {
         val simulationParameterId = savedStateHandle.get<String>("simulationId")
@@ -63,5 +66,23 @@ class SimulationScreenViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    internal fun onUserEvent(userEvent: SimulationScreenUserEvent) {
+        when (userEvent) {
+            is SimulationScreenUserEvent.BackButtonClicked -> {
+                onBackButtonClicked()
+            }
+        }
+    }
+
+    private fun onBackButtonClicked() {
+        viewModelScope.launch(dispatcher) {
+            _uiEventsState.emit(UiEvent.NavigateBack(::onUiEventConsumed))
+        }
+    }
+
+    private fun onUiEventConsumed() {
+        _uiEventsState.update { null }
     }
 }

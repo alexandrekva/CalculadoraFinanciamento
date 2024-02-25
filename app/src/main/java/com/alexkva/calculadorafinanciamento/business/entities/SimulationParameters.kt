@@ -1,9 +1,11 @@
 package com.alexkva.calculadorafinanciamento.business.entities
 
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParametersEntity
 import java.math.BigDecimal
 
 data class SimulationParameters(
+    val simulationParametersId: SimulationParametersId = Long.MIN_VALUE,
     val financingType: FinancingTypes,
     val amountFinanced: BigDecimal,
     val annualInterest: BigDecimal,

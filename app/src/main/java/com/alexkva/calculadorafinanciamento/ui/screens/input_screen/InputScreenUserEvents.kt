@@ -4,6 +4,9 @@ import com.alexkva.calculadorafinanciamento.business.entities.SimulationParamete
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 
 sealed class InputScreenUserEvents {
+    data object DropdownMenuButtonClicked : InputScreenUserEvents()
+    data object DropdownMenuClosed : InputScreenUserEvents()
+    data object LogButtonClicked : InputScreenUserEvents()
     data class SegmentedButtonChanged(val selectedButtonIndex: Int) : InputScreenUserEvents()
     data class AmountFinancedChanged(val amountFinanced: String) : InputScreenUserEvents()
     data class AnnualInterestChanged(val annualInterest: String) : InputScreenUserEvents()

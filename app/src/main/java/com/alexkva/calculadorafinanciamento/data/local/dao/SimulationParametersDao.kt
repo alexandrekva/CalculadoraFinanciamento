@@ -9,6 +9,10 @@ typealias SimulationParametersId = Long
 
 @Dao
 interface SimulationParametersDao {
+
+    @Query("SELECT * FROM simulation_parameters")
+    fun getAllSimulationParameters(): List<SimulationParametersEntity>
+
     @Query("SELECT * FROM simulation_parameters WHERE id = :simulationParametersId LIMIT 1")
     fun findSimulationParametersById(simulationParametersId: SimulationParametersId): SimulationParametersEntity?
 
@@ -17,4 +21,5 @@ interface SimulationParametersDao {
 
     @Query("SELECT * FROM simulation_parameters ORDER BY id DESC LIMIT 1")
     fun getLastInsertedSimulationParameters(): SimulationParametersEntity?
+
 }

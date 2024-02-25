@@ -5,17 +5,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -40,11 +47,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.ui.components.CurrencyOutlinedTextField
+import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledSwitch
 import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
+import com.alexkva.calculadorafinanciamento.ui.models.MenuItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
+import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
 import com.alexkva.calculadorafinanciamento.utils.extensions.limitedCharacters
 import kotlinx.coroutines.launch
@@ -52,28 +62,26 @@ import kotlinx.coroutines.launch
 @Composable
 fun InputScreenRoute(
     viewModel: InputScreenViewModel = hiltViewModel(),
-    onNavigateTo: (String) -> Unit
+    navigateTo: (String) -> Unit
 ) {
-    val inputState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
+    val inputScreenState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
-            is UiEvent.NavigationEvent -> onNavigateTo(uiEvent.destination)
+            is UiEvent.Navigation -> navigateTo(uiEvent.destination)
             is UiEvent.ShowSnackbar -> scope.launch {
                 when (snackbarHostState.showSnackbar(uiEvent.snackbarVisuals)) {
-                    SnackbarResult.ActionPerformed -> {
-                        viewModel.onUserEvent(InputScreenUserEvents.LastSimulationClicked(uiEvent.simulationParameters))
-                    }
-                    else -> {}
+                    SnackbarResult.ActionPerformed -> uiEvent.onActionPerformed()
+                    SnackbarResult.Dismissed -> uiEvent.onDismissed
                 }
             }
         }
     }
 
     InputScreen(
-        inputState = inputState,
+        inputScreenState = inputScreenState,
         onUserEvent = viewModel::onUserEvent,
         snackbarHostState = snackbarHostState
     )
@@ -81,19 +89,31 @@ fun InputScreenRoute(
 
 @Composable
 private fun InputScreen(
-    inputState: InputScreenState,
+    inputScreenState: InputScreenState,
     snackbarHostState: SnackbarHostState,
     onUserEvent: (InputScreenUserEvents) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val interactionSource = remember { MutableInteractionSource() }
-    val termOptionsCharLimit = inputState.termOption.charLimit
+    val termOptionsCharLimit = inputScreenState.termOption.charLimit
     val scrollState = rememberScrollState()
 
-    with(inputState) {
+    with(inputScreenState) {
         Scaffold(
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
+            },
+            topBar = {
+                CustomTopBar(
+                    title = { Text(text = stringResource(id = R.string.financing_simulation_label)) },
+                    trailingIcon = {
+                        CustomDropdownMenu(
+                            onUserEvent = onUserEvent,
+                            isDropdownMenuExpanded = isDropdownMenuExpanded,
+                            menuItemCollection = menuItemCollection
+                        )
+                    }
+                )
             }
         ) { paddingValues ->
             Column(
@@ -280,14 +300,51 @@ private fun InputScreen(
     }
 }
 
+@Composable
+private fun CustomDropdownMenu(
+    onUserEvent: (InputScreenUserEvents) -> Unit,
+    isDropdownMenuExpanded: Boolean,
+    menuItemCollection: MenuItemCollection
+) {
+    Box {
+        IconButton(onClick = { onUserEvent(InputScreenUserEvents.DropdownMenuButtonClicked) }) {
+            Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
+        }
+        DropdownMenu(
+            expanded = isDropdownMenuExpanded,
+            onDismissRequest = { onUserEvent(InputScreenUserEvents.DropdownMenuClosed) }) {
+            menuItemCollection.menuItems.forEach {
+                DropdownMenuItem(label = it.label, onUserEvent = onUserEvent)
+            }
+        }
+    }
+}
+
+@Composable
+private fun DropdownMenuItem(label: String, onUserEvent: (InputScreenUserEvents) -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(width = 96.dp, height = 42.dp)
+            .clickable { onUserEvent(InputScreenUserEvents.LogButtonClicked) },
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge
+        )
+    }
+}
+
 @Preview(showSystemUi = true, showBackground = true, name = "Default Preview")
 @Composable
 private fun PreviewInoutScreen() {
-    InputScreen(
-        inputState = InputScreenState(),
-        onUserEvent = {},
-        snackbarHostState = SnackbarHostState()
-    )
+    CalculadoraFinanciamentoTheme {
+        InputScreen(
+            inputScreenState = InputScreenState(),
+            onUserEvent = {},
+            snackbarHostState = SnackbarHostState()
+        )
+    }
 }
 
 

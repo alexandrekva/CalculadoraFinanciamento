@@ -2,8 +2,8 @@ package com.alexkva.calculadorafinanciamento.data.repositories
 
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.SimulationParametersRepository
-import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersDao
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -13,6 +13,15 @@ import javax.inject.Inject
 class SimulationParametersRepositoryImpl @Inject constructor(
     private val dao: SimulationParametersDao
 ) : SimulationParametersRepository {
+    override fun getAllSimulationParameters(): Flow<Resource<List<SimulationParameters>>> = flow {
+        emit((Resource.Loading()))
+
+        val result = dao.getAllSimulationParameters()
+
+        emit(Resource.Success(result.map { it.toDomain() }))
+    }.catch { e ->
+        emit(Resource.Error("Erro ao obter lista de parâmetros de simulaçãos: ${e.message}"))
+    }
 
     override fun getSimulationParametersById(targetUid: SimulationParametersId): Flow<Resource<SimulationParameters>> =
         flow {

@@ -16,8 +16,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,7 +44,10 @@ import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallment
 import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallmentCollection
+import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledInfo
+import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
+import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.classes.ColorGenerator
 import com.alexkva.calculadorafinanciamento.utils.extensions.toFormattedString
@@ -48,70 +55,105 @@ import java.math.BigDecimal
 
 @Composable
 fun SimulationScreenRoute(
-    viewModel: SimulationScreenViewModel = hiltViewModel()
+    viewModel: SimulationScreenViewModel = hiltViewModel(),
+    navigateBack: () -> Unit
 ) {
     val simulationState: SimulationScreenState by viewModel.simulationState.collectAsStateWithLifecycle()
-    SimulationScreen(simulationState)
+
+    ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
+        when (uiEvent) {
+            is UiEvent.NavigateBack -> navigateBack()
+        }
+    }
+
+    SimulationScreen(simulationScreenState = simulationState, onUserEvent = viewModel::onUserEvent)
 }
 
 @Composable
-private fun SimulationScreen(simulationScreenState: SimulationScreenState) {
+private fun SimulationScreen(simulationScreenState: SimulationScreenState, onUserEvent: (SimulationScreenUserEvent) -> Unit) {
 
     if (simulationScreenState.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(modifier = Modifier.size(48.dp))
         }
     } else {
         with(simulationScreenState) {
-            Scaffold { paddingValues ->
-                LazyColumn(
+            Scaffold(
+                topBar = {
+                    CustomTopBar(
+                        title = { Text(text = stringResource(id = R.string.log_label)) },
+                        leadingIcon = {
+                            IconButton(onClick = { onUserEvent(SimulationScreenUserEvent.BackButtonClicked) }) {
+                                Icon(
+                                    imageVector = Icons.Rounded.ArrowBack,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { paddingValues ->
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surface)
-                        .padding(paddingValues)
-                        .padding(horizontal = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
                 ) {
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SimulationHeader(
-                            financingType = financingType,
-                            termInMonths = termInMonths,
-                            amountFinanced = amountFinanced,
-                            totalPaid = totalPaid,
-                            totalPaidInInterests = totalPaidInInterests,
-                            totalMonetaryUpdate = totalMonetaryUpdate
-                        )
-                    }
+                    if (isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(paddingValues)
+                                .padding(horizontal = 24.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
 
-                    item {
-                        FirstAndLastInstallment(
-                            firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
-                            lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
-                            compareLabel = stringResource(
-                                id = R.string.compare_label,
-                                simulationScreenState.financingType.inverse().label
-                            )
-                        )
-                    }
+                        ) {
+                            item {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                SimulationHeader(
+                                    financingType = financingType,
+                                    termInMonths = termInMonths,
+                                    amountFinanced = amountFinanced,
+                                    totalPaid = totalPaid,
+                                    totalPaidInInterests = totalPaidInInterests,
+                                    totalMonetaryUpdate = totalMonetaryUpdate
+                                )
+                            }
 
-                    item {
-                        InfoSection()
-                    }
+                            item {
+                                FirstAndLastInstallment(
+                                    firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
+                                    lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
+                                    compareLabel = stringResource(
+                                        id = R.string.compare_label,
+                                        simulationScreenState.financingType.inverse().label
+                                    )
+                                )
+                            }
 
-                    itemsIndexed(monthlyInstallmentCollection.monthlyInstallments) { index, monthlyInstallment ->
-                        MonthlyInstallmentItem(monthlyInstallment)
-                        if (index < monthlyInstallmentCollection.monthlyInstallments.lastIndex) {
-                            Divider(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 12.dp),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            item {
+                                InfoSection()
+                            }
+
+                            itemsIndexed(monthlyInstallmentCollection.monthlyInstallments) { index, monthlyInstallment ->
+                                MonthlyInstallmentItem(monthlyInstallment)
+                                if (index < monthlyInstallmentCollection.monthlyInstallments.lastIndex) {
+                                    Divider(
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 12.dp),
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
                         }
                     }
+
                 }
+
             }
         }
     }
@@ -187,7 +229,8 @@ private fun FirstAndLastInstallment(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
-            .padding(24.dp), verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onSecondaryContainer
@@ -392,6 +435,6 @@ private fun PreviewSimulationScreen() {
             )
         )
 
-        SimulationScreen(simulationScreenState = simulationScreenState)
+        SimulationScreen(simulationScreenState = simulationScreenState, onUserEvent = {})
     }
 }

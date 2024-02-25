@@ -23,6 +23,7 @@ data class SimulationParametersEntity(
 ) {
     fun toDomain(): SimulationParameters {
         return SimulationParameters(
+            simulationParametersId = uid,
             financingType = financingType,
             amountFinanced = amountFinanced,
             annualInterest = annualInterest,

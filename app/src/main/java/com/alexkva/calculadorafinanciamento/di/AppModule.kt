@@ -1,12 +1,14 @@
 package com.alexkva.calculadorafinanciamento.di
 
 import android.app.Application
+import com.alexkva.calculadorafinanciamento.business.interfaces.GetAllSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetLastSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.SimulationParametersRepository
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
+import com.alexkva.calculadorafinanciamento.business.use_cases.GetAllSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetLastSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.InsertSimulationParameterUseCaseImpl
@@ -39,6 +41,11 @@ object AppModule {
     @Provides
     fun provideValidateTerm(): ValidateTermUseCase {
         return ValidateTermUseCaseImpl()
+    }
+
+    @Provides
+    fun provideGetAllSimulationParameters(repository: SimulationParametersRepository): GetAllSimulationParametersUseCase {
+        return GetAllSimulationParametersUseCaseImpl(repository)
     }
 
     @Provides
