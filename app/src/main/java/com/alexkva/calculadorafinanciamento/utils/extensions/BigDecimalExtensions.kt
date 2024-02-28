@@ -17,12 +17,12 @@ fun BigDecimal.toFormattedStringFromPercent(): String {
 
 fun BigDecimal.fromPercentToString(): String {
     val multipliedValue = this.multiply(BigDecimal(10000))
-    return multipliedValue.toString()
+    return multipliedValue.stripTrailingZeros().toPlainString()
 }
 
 fun BigDecimal.fromDecimalToString(): String {
     val multipliedValue = this.multiply(BigDecimal(100))
-    return multipliedValue.toString()
+    return multipliedValue.stripTrailingZeros().toPlainString()
 }
 
 fun BigDecimal.annualToMonthlyInterest(): BigDecimal {

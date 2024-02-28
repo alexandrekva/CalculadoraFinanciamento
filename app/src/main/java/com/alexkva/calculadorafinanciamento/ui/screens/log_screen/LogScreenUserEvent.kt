@@ -8,4 +8,6 @@ sealed class LogScreenUserEvent {
         LogScreenUserEvent()
 
     data object DeleteAllLogsButtonClicked : LogScreenUserEvent()
+    data class SimulateButtonClicked(val simulationParametersId: SimulationParametersId) : LogScreenUserEvent()
+    data class EditButtonClicked(val simulationParametersId: SimulationParametersId) : LogScreenUserEvent()
 }

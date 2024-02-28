@@ -5,4 +5,4 @@ import androidx.compose.runtime.Immutable
 data class MenuItemModel(val label: String)
 
 @Immutable
-data class MenuItemCollection(val menuItems: List<MenuItemModel>)
+data class MenuItemCollection(val menuItems: List<MenuItemModel> = emptyList())

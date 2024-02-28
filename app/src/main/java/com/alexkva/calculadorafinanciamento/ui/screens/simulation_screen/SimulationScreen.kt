@@ -70,91 +70,86 @@ fun SimulationScreenRoute(
 }
 
 @Composable
-private fun SimulationScreen(simulationScreenState: SimulationScreenState, onUserEvent: (SimulationScreenUserEvent) -> Unit) {
-
-    if (simulationScreenState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(modifier = Modifier.size(48.dp))
-        }
-    } else {
-        with(simulationScreenState) {
-            Scaffold(
-                topBar = {
-                    CustomTopBar(
-                        title = { Text(text = stringResource(id = R.string.log_label)) },
-                        leadingIcon = {
-                            IconButton(onClick = { onUserEvent(SimulationScreenUserEvent.BackButtonClicked) }) {
-                                Icon(
-                                    imageVector = Icons.Rounded.ArrowBack,
-                                    contentDescription = null
-                                )
-                            }
+private fun SimulationScreen(
+    simulationScreenState: SimulationScreenState,
+    onUserEvent: (SimulationScreenUserEvent) -> Unit
+) {
+    with(simulationScreenState) {
+        Scaffold(
+            topBar = {
+                CustomTopBar(
+                    title = { Text(text = stringResource(id = R.string.log_label)) },
+                    leadingIcon = {
+                        IconButton(onClick = { onUserEvent(SimulationScreenUserEvent.BackButtonClicked) }) {
+                            Icon(
+                                imageVector = Icons.Rounded.ArrowBack,
+                                contentDescription = null
+                            )
                         }
-                    )
-                }
-            ) { paddingValues ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(paddingValues)
-                                .padding(horizontal = 24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                    }
+                )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
 
-                        ) {
-                            item {
-                                Spacer(modifier = Modifier.height(16.dp))
-                                SimulationHeader(
-                                    financingType = financingType,
-                                    termInMonths = termInMonths,
-                                    amountFinanced = amountFinanced,
-                                    totalPaid = totalPaid,
-                                    totalPaidInInterests = totalPaidInInterests,
-                                    totalMonetaryUpdate = totalMonetaryUpdate
+                    ) {
+                        item {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            SimulationHeader(
+                                financingType = financingType,
+                                termInMonths = termInMonths,
+                                amountFinanced = amountFinanced,
+                                totalPaid = totalPaid,
+                                totalPaidInInterests = totalPaidInInterests,
+                                totalMonetaryUpdate = totalMonetaryUpdate
+                            )
+                        }
+
+                        item {
+                            FirstAndLastInstallment(
+                                firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
+                                lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
+                                compareLabel = stringResource(
+                                    id = R.string.compare_label,
+                                    simulationScreenState.financingType.inverse().label
                                 )
-                            }
+                            )
+                        }
 
-                            item {
-                                FirstAndLastInstallment(
-                                    firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
-                                    lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
-                                    compareLabel = stringResource(
-                                        id = R.string.compare_label,
-                                        simulationScreenState.financingType.inverse().label
-                                    )
+                        item {
+                            InfoSection()
+                        }
+
+                        itemsIndexed(monthlyInstallmentCollection.monthlyInstallments) { index, monthlyInstallment ->
+                            MonthlyInstallmentItem(monthlyInstallment)
+                            if (index < monthlyInstallmentCollection.monthlyInstallments.lastIndex) {
+                                Divider(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(top = 12.dp),
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
-                            }
-
-                            item {
-                                InfoSection()
-                            }
-
-                            itemsIndexed(monthlyInstallmentCollection.monthlyInstallments) { index, monthlyInstallment ->
-                                MonthlyInstallmentItem(monthlyInstallment)
-                                if (index < monthlyInstallmentCollection.monthlyInstallments.lastIndex) {
-                                    Divider(
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(top = 12.dp),
-                                        color = MaterialTheme.colorScheme.onSurface
-                                    )
-                                }
                             }
                         }
                     }
-
                 }
 
             }
+
         }
     }
 }

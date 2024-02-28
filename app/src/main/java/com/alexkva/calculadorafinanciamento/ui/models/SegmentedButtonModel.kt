@@ -9,4 +9,4 @@ data class SegmentedButtonModel(
 )
 
 @Immutable
-data class SegmentedButtonCollection(val segmentedButtons: List<SegmentedButtonModel>)
+data class SegmentedButtonCollection(val segmentedButtons: List<SegmentedButtonModel> = emptyList())

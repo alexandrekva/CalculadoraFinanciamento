@@ -10,4 +10,6 @@ interface SimulationParametersRepository {
     fun getSimulationParametersById(targetUid: SimulationParametersId): Flow<Resource<SimulationParameters>>
     fun insertSimulationParameters(simulationParameter: SimulationParameters): Flow<Resource<SimulationParametersId>>
     fun getLastSimulationParameters(): Flow<Resource<SimulationParameters>>
+    fun deleteSimulationParametersById(targetUid: SimulationParametersId): Flow<Resource<Unit>>
+    fun deleteAllSimulationParameters(): Flow<Resource<Unit>>
 }

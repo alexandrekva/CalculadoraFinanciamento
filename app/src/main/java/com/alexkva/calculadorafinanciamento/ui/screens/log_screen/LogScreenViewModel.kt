@@ -3,8 +3,11 @@ package com.alexkva.calculadorafinanciamento.ui.screens.log_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
+import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteAllSimulationParametersUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteSimulationParametersByIdUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetAllSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
+import com.alexkva.calculadorafinanciamento.ui.models.LogItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class LogScreenViewModel @Inject constructor(
     private val getAllSimulationParametersUseCase: GetAllSimulationParametersUseCase,
+    private val deleteSimulationParametersByIdUseCase: DeleteSimulationParametersByIdUseCase,
+    private val deleteAllSimulationParametersUseCase: DeleteAllSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -35,7 +40,7 @@ class LogScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> {}
                     is Resource.Success -> {
-                        updateLogState(result.data.reversed())
+                        updateLogState(result.data)
                     }
 
                     is Resource.Error -> println(result.message)
@@ -57,6 +62,14 @@ class LogScreenViewModel @Inject constructor(
             is LogScreenUserEvent.DeleteLogButtonClicked -> {
                 onDeleteLogButtonClicked(userEvent.simulationParametersId)
             }
+
+            is LogScreenUserEvent.EditButtonClicked -> {
+
+            }
+
+            is LogScreenUserEvent.SimulateButtonClicked -> {
+
+            }
         }
     }
 
@@ -67,24 +80,65 @@ class LogScreenViewModel @Inject constructor(
     }
 
     private fun onDeleteAllLogsButtonClicked() {
-        //TODO delete log from local data source
+        viewModelScope.launch(dispatcher) {
+            deleteAllSimulationParametersUseCase().collect { result ->
+                when (result) {
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> makeAllItemLogNotVisible()
 
-        _logState.update {
-            it.copy(simulationParametersList = emptyList())
+                    is Resource.Error -> println(result.message)
+                }
+            }
         }
     }
 
     private fun onDeleteLogButtonClicked(simulationParametersId: SimulationParametersId) {
-        //TODO delete log from local data source
-
-        _logState.update {
-            it.copy(simulationParametersList = it.simulationParametersList.filterNot { it.simulationParametersId == simulationParametersId })
+        viewModelScope.launch(dispatcher) {
+            deleteSimulationParametersByIdUseCase(simulationParametersId).collect { result ->
+                when (result) {
+                    is Resource.Loading -> Unit
+                    is Resource.Success -> makeItemLogNotVisible(simulationParametersId)
+                    is Resource.Error -> println(result.message)
+                }
+            }
         }
     }
 
+    private fun makeItemLogNotVisible(simulationParametersId: SimulationParametersId) {
+        _logState.update { logScreenState ->
+            logScreenState.copy(logItemCollection = LogItemCollection(
+                logScreenState.logItemCollection.logItems.map { logItem ->
+                    if (logItem.simulationParameters.simulationParametersId == simulationParametersId) {
+                        logItem.copy(isVisible = false)
+                    } else {
+                        logItem
+                    }
+                }
+            )
+            )
+        }
+    }
+
+    private fun makeAllItemLogNotVisible() {
+        _logState.update { logScreenState ->
+            logScreenState.copy(logItemCollection = LogItemCollection(
+                logScreenState.logItemCollection.logItems.map { logItem ->
+                    logItem.copy(isVisible = false)
+                }
+            )
+            )
+        }
+    }
+
+
     private fun updateLogState(simulationParametersList: List<SimulationParameters>) {
         _logState.update {
-            it.copy(isLoading = false, simulationParametersList = simulationParametersList)
+            it.copy(
+                isLoading = false,
+                logItemCollection = LogItemCollection.fromSimulationParametersList(
+                    simulationParametersList.reversed()
+                )
+            )
         }
     }
 

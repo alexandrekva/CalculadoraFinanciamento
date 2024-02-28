@@ -22,4 +22,10 @@ interface SimulationParametersDao {
     @Query("SELECT * FROM simulation_parameters ORDER BY id DESC LIMIT 1")
     fun getLastInsertedSimulationParameters(): SimulationParametersEntity?
 
+    @Query("DELETE FROM simulation_parameters WHERE id = :simulationParametersId")
+    fun deleteSimulationParametersById(simulationParametersId: SimulationParametersId)
+
+    @Query("DELETE FROM simulation_parameters")
+    fun deleteAllSimulationParameters()
+
 }

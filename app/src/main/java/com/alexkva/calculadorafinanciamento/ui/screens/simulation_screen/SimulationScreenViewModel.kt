@@ -7,6 +7,8 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingSimulatio
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
+import com.alexkva.calculadorafinanciamento.navigation.NavArg
+import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,9 +33,16 @@ class SimulationScreenViewModel @Inject constructor(
     val uiEventState = _uiEventsState.asStateFlow()
 
     init {
-        val simulationParameterId = savedStateHandle.get<String>("simulationId")
-        simulationParameterId?.let {
-            getSimulationParameters(it.toLong())
+        Screens.SimulationScreen.navArgs.forEach { navArg ->
+            when (navArg) {
+                is NavArg.SimulationParametersId -> {
+                    savedStateHandle.get<Long>(navArg.key)?.let {
+                        getSimulationParameters(it)
+                    }
+                }
+
+                else -> Unit
+            }
         }
     }
 

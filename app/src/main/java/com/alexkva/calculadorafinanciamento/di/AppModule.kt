@@ -1,6 +1,8 @@
 package com.alexkva.calculadorafinanciamento.di
 
 import android.app.Application
+import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteAllSimulationParametersUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteSimulationParametersByIdUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetAllSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetLastSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
@@ -8,6 +10,8 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulation
 import com.alexkva.calculadorafinanciamento.business.interfaces.SimulationParametersRepository
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
+import com.alexkva.calculadorafinanciamento.business.use_cases.DeleteAllSimulationParametersUseCaseImpl
+import com.alexkva.calculadorafinanciamento.business.use_cases.DeleteSimulationParametersByIdUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetAllSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetLastSimulationParametersUseCaseImpl
 import com.alexkva.calculadorafinanciamento.business.use_cases.GetSimulationParametersUseCaseImpl
@@ -41,6 +45,16 @@ object AppModule {
     @Provides
     fun provideValidateTerm(): ValidateTermUseCase {
         return ValidateTermUseCaseImpl()
+    }
+
+    @Provides
+    fun provideDeleteAllSimulationParameters(repository: SimulationParametersRepository): DeleteAllSimulationParametersUseCase {
+        return DeleteAllSimulationParametersUseCaseImpl(repository)
+    }
+
+    @Provides
+    fun provideDeleteSimulationParametersById(repository: SimulationParametersRepository): DeleteSimulationParametersByIdUseCase {
+        return DeleteSimulationParametersByIdUseCaseImpl(repository)
     }
 
     @Provides

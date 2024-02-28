@@ -5,6 +5,7 @@
     <string name="log_label">Histórico</string>
     <string name="empty_log_label">Histórico vazio</string>
     <string name="clear_label">Limpar</string>
+    <string name="edit_label">Editar</string>
 
     <string name="financed_value_label">Valor financiado</string>
     <string name="annual_interest_label">Juros anual</string>

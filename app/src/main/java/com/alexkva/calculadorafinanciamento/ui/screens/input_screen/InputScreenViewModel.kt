@@ -160,7 +160,7 @@ class InputScreenViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
                 UiEvent.Navigation(
-                    Screens.LogScreen.route,
+                    Screens.LogScreen.getNavigationRoute("1", "2"),
                     ::onUiEventConsumed
                 )
             )
@@ -293,10 +293,10 @@ class InputScreenViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             insertSimulationParametersUseCase(simulationParameters).collect { result ->
                 when (result) {
-                    is Resource.Loading -> {}
+                    is Resource.Loading -> Unit
                     is Resource.Success -> _uiEventsState.emit(
                         UiEvent.Navigation(
-                            Screens.SimulationScreen.withArgs(result.data.toString()),
+                            Screens.SimulationScreen.getNavigationRoute(result.data),
                             ::onUiEventConsumed
                         )
                     )

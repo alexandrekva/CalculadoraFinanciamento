@@ -56,4 +56,23 @@ class SimulationParametersRepositoryImpl @Inject constructor(
         }.catch { e ->
             emit(Resource.Error("Erro o recuperar item do BD: ${e.message}"))
         }
+
+    override fun deleteSimulationParametersById(targetUid: SimulationParametersId): Flow<Resource<Unit>> =
+        flow {
+            emit(Resource.Loading())
+
+            dao.deleteSimulationParametersById(targetUid)
+            emit(Resource.Success(Unit))
+        }.catch { e ->
+            emit(Resource.Error("Erro o deletar item do BD: ${e.message}"))
+        }
+
+    override fun deleteAllSimulationParameters(): Flow<Resource<Unit>> = flow {
+        emit(Resource.Loading())
+
+        dao.deleteAllSimulationParameters()
+        emit(Resource.Success(Unit))
+    }.catch { e ->
+        emit(Resource.Error("Erro o deletar itens do BD: ${e.message}"))
+    }
 }

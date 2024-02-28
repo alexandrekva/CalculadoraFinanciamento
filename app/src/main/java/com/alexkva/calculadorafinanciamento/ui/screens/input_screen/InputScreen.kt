@@ -1,6 +1,12 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -244,7 +250,11 @@ private fun InputScreen(
                     isChecked = hasReferenceRate,
                     onCheckedChange = { onUserEvent(InputScreenUserEvents.HasReferenceRateChanged(it)) })
 
-                AnimatedVisibility(visible = hasOptionalInput()) {
+                AnimatedVisibility(
+                    visible = hasOptionalInput(),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
                     Divider(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -252,7 +262,11 @@ private fun InputScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = hasInsurance) {
+                AnimatedVisibility(
+                    visible = hasInsurance,
+                    enter = slideInVertically() + expandVertically() + fadeIn(),
+                    exit = slideOutVertically() + shrinkVertically() + fadeOut()
+                ) {
                     CurrencyOutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(text = stringResource(id = R.string.insurance_label)) },
@@ -262,7 +276,11 @@ private fun InputScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = hasAdministrationTax) {
+                AnimatedVisibility(
+                    visible = hasAdministrationTax,
+                    enter = slideInVertically() + expandVertically() + fadeIn(),
+                    exit = slideOutVertically() + shrinkVertically() + fadeOut()
+                ) {
 
                     CurrencyOutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
@@ -279,7 +297,11 @@ private fun InputScreen(
                     )
                 }
 
-                AnimatedVisibility(visible = hasReferenceRate) {
+                AnimatedVisibility(
+                    visible = hasReferenceRate,
+                    enter = slideInVertically() + expandVertically() + fadeIn(),
+                    exit = slideOutVertically() + shrinkVertically() + fadeOut()
+                ) {
                     PercentOutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(text = stringResource(id = R.string.reference_rate_label)) },
