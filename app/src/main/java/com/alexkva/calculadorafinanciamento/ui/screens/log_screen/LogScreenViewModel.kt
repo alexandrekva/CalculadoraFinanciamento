@@ -120,9 +120,9 @@ class LogScreenViewModel @Inject constructor(
     private fun onSimulateButtonClicked(simulationParametersId: SimulationParametersId) {
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
-                UiEvent.NavigateBackWithArgs(
-                    ::onUiEventConsumed,
-                    NavArg.SIMULATION_PARAMETERS_ID_KEY to simulationParametersId
+                UiEvent.NavigateToRoute(
+                    route = Screens.SimulationScreen.getNavigationRoute(simulationParametersId),
+                    ::onUiEventConsumed
                 )
             )
         }
