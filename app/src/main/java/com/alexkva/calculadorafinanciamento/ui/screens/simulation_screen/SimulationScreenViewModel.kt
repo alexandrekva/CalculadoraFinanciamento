@@ -33,7 +33,14 @@ class SimulationScreenViewModel @Inject constructor(
     val uiEventState = _uiEventsState.asStateFlow()
 
     init {
-        Screens.SimulationScreen.navArgs.forEach { navArg ->
+        handleNavArgs(
+            savedStateHandle = savedStateHandle,
+            navArgs = Screens.SimulationScreen.navArgs
+        )
+    }
+
+    private fun handleNavArgs(savedStateHandle: SavedStateHandle, navArgs: Array<out NavArg>) {
+        navArgs.forEach { navArg ->
             when (navArg) {
                 is NavArg.SimulationParametersId -> {
                     savedStateHandle.get<Long>(navArg.key)?.let {

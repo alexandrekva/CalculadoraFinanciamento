@@ -7,6 +7,8 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteAllSimulat
 import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteSimulationParametersByIdUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetAllSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
+import com.alexkva.calculadorafinanciamento.navigation.NavArg
+import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.LogItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
@@ -64,11 +66,11 @@ class LogScreenViewModel @Inject constructor(
             }
 
             is LogScreenUserEvent.EditButtonClicked -> {
-
+                onEditButtonClicked(userEvent.simulationParametersId)
             }
 
             is LogScreenUserEvent.SimulateButtonClicked -> {
-
+                onSimulateButtonClicked(userEvent.simulationParametersId)
             }
         }
     }
@@ -101,6 +103,28 @@ class LogScreenViewModel @Inject constructor(
                     is Resource.Error -> println(result.message)
                 }
             }
+        }
+    }
+
+    private fun onEditButtonClicked(simulationParametersId: SimulationParametersId) {
+        viewModelScope.launch(dispatcher) {
+            _uiEventsState.emit(
+                UiEvent.NavigateToRoute(
+                    route = Screens.InputScreen.getNavigationRoute(simulationParametersId),
+                    ::onUiEventConsumed
+                )
+            )
+        }
+    }
+
+    private fun onSimulateButtonClicked(simulationParametersId: SimulationParametersId) {
+        viewModelScope.launch(dispatcher) {
+            _uiEventsState.emit(
+                UiEvent.NavigateBackWithArgs(
+                    ::onUiEventConsumed,
+                    NavArg.SIMULATION_PARAMETERS_ID_KEY to simulationParametersId
+                )
+            )
         }
     }
 
@@ -145,4 +169,6 @@ class LogScreenViewModel @Inject constructor(
     private fun onUiEventConsumed() {
         _uiEventsState.update { null }
     }
+
+
 }

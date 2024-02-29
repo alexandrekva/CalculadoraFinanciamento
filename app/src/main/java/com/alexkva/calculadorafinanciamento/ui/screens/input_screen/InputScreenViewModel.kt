@@ -1,6 +1,7 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
@@ -8,9 +9,12 @@ import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetLastSimulationParametersUseCase
+import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.InsertSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalInputUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
+import com.alexkva.calculadorafinanciamento.navigation.NavArg
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.CustomSnackbarVisuals
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
@@ -30,10 +34,12 @@ import kotlin.enums.EnumEntries
 
 @HiltViewModel
 class InputScreenViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val validateDecimalInputUseCase: ValidateDecimalInputUseCase,
     private val validateTermUseCase: ValidateTermUseCase,
     private val insertSimulationParametersUseCase: InsertSimulationParametersUseCase,
     private val getLastSimulationParametersUseCase: GetLastSimulationParametersUseCase,
+    private val getSimulationParametersUseCase: GetSimulationParametersUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -50,35 +56,71 @@ class InputScreenViewModel @Inject constructor(
     val uiEventState = _uiEventsState.asStateFlow()
 
     init {
+        handleNavArgs(savedStateHandle = savedStateHandle, navArgs = Screens.InputScreen.navArgs)
+    }
+
+    private fun handleNavArgs(savedStateHandle: SavedStateHandle, navArgs: Array<out NavArg>) {
+        navArgs.forEach { navArg ->
+            when (navArg) {
+                is NavArg.SimulationParametersId -> {
+                    savedStateHandle.get<Long>(navArg.key)?.let {
+                        getSimulationParameters(it)
+                    } ?: {
+                        getLastSimulationParameter()
+                    }
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
+    private fun getLastSimulationParameter() {
         viewModelScope.launch(dispatcher) {
             getLastSimulationParametersUseCase().collect { result ->
                 when (result) {
                     is Resource.Loading -> {}
-                    is Resource.Success -> _uiEventsState.emit(
-                        UiEvent.ShowSnackbar(
-                            snackbarVisuals = CustomSnackbarVisuals(
-                                message = "Deseja continuar a última simulação?",
-                                actionLabel = "Sim",
-                                withDismissAction = true,
-                                duration = SnackbarDuration.Short
-                            ),
-                            onActionPerformed = {
-                                onUserEvent(
-                                    InputScreenUserEvents.LastSimulationClicked(
-                                        result.data
-                                    )
-                                )
-                            },
-                            onConsumedAction = ::onUiEventConsumed
-                        )
-                    )
-
+                    is Resource.Success -> displayLastSimulationSnackbar(result.data)
                     is Resource.Error -> println(result.message)
                 }
             }
         }
     }
 
+    private fun getSimulationParameters(
+        simulationParametersId: SimulationParametersId
+    ) {
+        viewModelScope.launch(dispatcher) {
+            getSimulationParametersUseCase(simulationParametersId).collect { result ->
+                when (result) {
+                    is Resource.Loading -> {}
+                    is Resource.Success -> updateSimulationParameters(result.data)
+                    is Resource.Error -> println(result.message)
+                }
+            }
+        }
+    }
+
+    private suspend fun displayLastSimulationSnackbar(simulationParameters: SimulationParameters) {
+        _uiEventsState.emit(
+            UiEvent.ShowSnackbar(
+                snackbarVisuals = CustomSnackbarVisuals(
+                    message = "Deseja continuar a última simulação?",
+                    actionLabel = "Sim",
+                    withDismissAction = true,
+                    duration = SnackbarDuration.Short
+                ),
+                onActionPerformed = {
+                    onUserEvent(
+                        InputScreenUserEvents.LastSimulationClicked(
+                            simulationParameters
+                        )
+                    )
+                },
+                onConsumedAction = ::onUiEventConsumed
+            )
+        )
+    }
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
         when (userEvent) {
@@ -87,7 +129,7 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.DropdownMenuClosed -> {
-                updateDropdownMenu(false)
+                closeDropdownMenu()
             }
 
             is InputScreenUserEvents.SegmentedButtonChanged -> {
@@ -150,7 +192,7 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.LogButtonClicked -> {
-                updateDropdownMenu(false)
+                closeDropdownMenu()
                 navigateToLog()
             }
         }
@@ -159,8 +201,8 @@ class InputScreenViewModel @Inject constructor(
     private fun navigateToLog() {
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
-                UiEvent.Navigation(
-                    Screens.LogScreen.getNavigationRoute("1", "2"),
+                UiEvent.NavigateToRoute(
+                    Screens.LogScreen.getNavigationRoute(),
                     ::onUiEventConsumed
                 )
             )
@@ -171,8 +213,8 @@ class InputScreenViewModel @Inject constructor(
         _inputState.update { it.copy(isDropdownMenuExpanded = !it.isDropdownMenuExpanded) }
     }
 
-    private fun updateDropdownMenu(isDropdownMenuExpanded: Boolean) {
-        _inputState.update { it.copy(isDropdownMenuExpanded = isDropdownMenuExpanded) }
+    private fun closeDropdownMenu() {
+        _inputState.update { it.copy(isDropdownMenuExpanded = false) }
     }
 
     private fun updateSelectedButton(selectedButtonIndex: Int) {
@@ -295,7 +337,7 @@ class InputScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> Unit
                     is Resource.Success -> _uiEventsState.emit(
-                        UiEvent.Navigation(
+                        UiEvent.NavigateToRoute(
                             Screens.SimulationScreen.getNavigationRoute(result.data),
                             ::onUiEventConsumed
                         )

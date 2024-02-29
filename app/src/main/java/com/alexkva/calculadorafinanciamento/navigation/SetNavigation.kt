@@ -11,27 +11,33 @@ import com.alexkva.calculadorafinanciamento.ui.screens.simulation_screen.Simulat
 @Composable
 fun SetNavigation(
     navController: NavHostController,
-    startDestination: String = Screens.InputScreen.getFullRoute()
+    startDestination: String = Screens.InputScreen.route,
+    navigationCommands: NavigationCommands = NavigationCommands(navController)
 ) {
     NavHost(navController = navController, startDestination = startDestination) {
+
         composable(
             route = Screens.InputScreen.getFullRoute(),
             arguments = Screens.InputScreen.getArguments()
         ) {
-            InputScreenRoute(navigateTo = { direction -> navController.navigate(direction) })
+            InputScreenRoute(navigateTo = navigationCommands::navigateTo)
         }
         composable(
             route = Screens.SimulationScreen.getFullRoute(),
             arguments = Screens.SimulationScreen.getArguments()
         ) {
-            SimulationScreenRoute(navigateBack = { navController.popBackStack() })
+            SimulationScreenRoute(navigateBack = navigationCommands::navigateBack)
         }
 
         composable(
             route = Screens.LogScreen.getFullRoute(),
             arguments = Screens.LogScreen.getArguments()
         ) {
-            LogScreenRoute(navigateBack = { navController.popBackStack() })
+            LogScreenRoute(
+                navigateBackWithArgs = navigationCommands::navigateBackWithArgs,
+                navigateBack = navigationCommands::navigateBack,
+                navigateTo = navigationCommands::navigateTo
+            )
         }
     }
 }

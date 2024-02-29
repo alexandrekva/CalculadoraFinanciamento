@@ -76,7 +76,7 @@ fun InputScreenRoute(
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
-            is UiEvent.Navigation -> navigateTo(uiEvent.destination)
+            is UiEvent.NavigateToRoute -> navigateTo(uiEvent.route)
             is UiEvent.ShowSnackbar -> scope.launch {
                 when (snackbarHostState.showSnackbar(uiEvent.snackbarVisuals)) {
                     SnackbarResult.ActionPerformed -> uiEvent.onActionPerformed()

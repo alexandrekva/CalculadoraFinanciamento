@@ -57,13 +57,17 @@ import java.math.BigDecimal
 @Composable
 fun LogScreenRoute(
     viewModel: LogScreenViewModel = hiltViewModel(),
-    navigateBack: () -> Unit
+    navigateBackWithArgs: (Array<out Pair<String, Any>>) -> Unit,
+    navigateBack: () -> Unit,
+    navigateTo: (String) -> Unit
 ) {
     val logScreenState: LogScreenState by viewModel.logState.collectAsStateWithLifecycle()
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
+            is UiEvent.NavigateBackWithArgs -> navigateBackWithArgs(uiEvent.navArgs)
             is UiEvent.NavigateBack -> navigateBack()
+            is UiEvent.NavigateToRoute -> navigateTo(uiEvent.route)
         }
     }
 
