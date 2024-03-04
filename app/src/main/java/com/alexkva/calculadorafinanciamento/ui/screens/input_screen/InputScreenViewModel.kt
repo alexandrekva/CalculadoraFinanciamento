@@ -1,6 +1,7 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,6 +16,7 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateDecimalI
 import com.alexkva.calculadorafinanciamento.business.interfaces.ValidateTermUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.navigation.NavArg
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.CustomSnackbarVisuals
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
@@ -55,6 +57,8 @@ class InputScreenViewModel @Inject constructor(
     private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
     val uiEventState = _uiEventsState.asStateFlow()
 
+    private var simulationParametersId: SimulationParametersId? = null
+
     init {
         handleNavArgs(savedStateHandle = savedStateHandle, navArgs = Screens.InputScreen.navArgs)
     }
@@ -64,13 +68,14 @@ class InputScreenViewModel @Inject constructor(
             when (navArg) {
                 is NavArg.SimulationParametersId -> {
                     savedStateHandle.get<Long>(navArg.key)?.let {
-                        getSimulationParameters(it)
-                    } ?: {
-                        getLastSimulationParameter()
+                        if (it != navArg.defaultValue) {
+                            simulationParametersId = it
+                            getSimulationParameters(it)
+                        } else {
+                            getLastSimulationParameter()
+                        }
                     }
                 }
-
-                else -> Unit
             }
         }
     }
@@ -109,15 +114,13 @@ class InputScreenViewModel @Inject constructor(
                     actionLabel = "Sim",
                     withDismissAction = true,
                     duration = SnackbarDuration.Short
-                ),
-                onActionPerformed = {
+                ), onActionPerformed = {
                     onUserEvent(
                         InputScreenUserEvents.LastSimulationClicked(
                             simulationParameters
                         )
                     )
-                },
-                onConsumedAction = ::onUiEventConsumed
+                }, onConsumedAction = ::onUiEventConsumed
             )
         )
     }
@@ -198,12 +201,20 @@ class InputScreenViewModel @Inject constructor(
         }
     }
 
+    internal fun onLifecycleEvent(lifecycleEvent: Lifecycle.Event) {
+        when (lifecycleEvent) {
+            Lifecycle.Event.ON_RESUME -> verifySimulationParametersIdArg()
+            else -> Unit
+        }
+    }
+
     private fun navigateToLog() {
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
-                UiEvent.NavigateToRoute(
-                    Screens.LogScreen.getNavigationRoute(),
-                    ::onUiEventConsumed
+                UiEvent.Navigate(
+                    NavigationCommand.NavigateTo(
+                        route = Screens.LogScreen.getNavigationRoute()
+                    ), ::onUiEventConsumed
                 )
             )
         }
@@ -224,8 +235,7 @@ class InputScreenViewModel @Inject constructor(
     private fun updateTermOption(termOption: TermOptions) {
         _inputState.update {
             it.copy(
-                termOption = termOption,
-                term = it.term.limitedCharacters(termOption.charLimit)
+                termOption = termOption, term = it.term.limitedCharacters(termOption.charLimit)
             )
         }
     }
@@ -243,8 +253,7 @@ class InputScreenViewModel @Inject constructor(
     private fun updateAnnualInterest(annualInterest: String) {
         _inputState.update {
             it.copy(
-                annualInterest = annualInterest,
-                annualInterestState = InputStates.VALID
+                annualInterest = annualInterest, annualInterestState = InputStates.VALID
             )
         }
     }
@@ -268,8 +277,7 @@ class InputScreenViewModel @Inject constructor(
     private fun updateAdministrationTax(administrationTax: String) {
         _inputState.update {
             it.copy(
-                administrationTax = administrationTax,
-                administrationTaxState = InputStates.VALID
+                administrationTax = administrationTax, administrationTaxState = InputStates.VALID
             )
         }
     }
@@ -283,8 +291,7 @@ class InputScreenViewModel @Inject constructor(
     private fun updateReferenceRate(referenceRate: String) {
         _inputState.update {
             it.copy(
-                referenceRate = referenceRate,
-                referenceRateState = InputStates.VALID
+                referenceRate = referenceRate, referenceRateState = InputStates.VALID
             )
         }
     }
@@ -337,9 +344,10 @@ class InputScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> Unit
                     is Resource.Success -> _uiEventsState.emit(
-                        UiEvent.NavigateToRoute(
-                            Screens.SimulationScreen.getNavigationRoute(result.data),
-                            ::onUiEventConsumed
+                        UiEvent.Navigate(
+                            NavigationCommand.NavigateTo(
+                                route = Screens.SimulationScreen.getNavigationRoute(result.data)
+                            ), ::onUiEventConsumed
                         )
                     )
 
@@ -351,6 +359,10 @@ class InputScreenViewModel @Inject constructor(
 
     private fun getFinancingTypeBySelectedButton(): FinancingTypes {
         return financingTypes[inputState.value.selectedSegmentedButton]
+    }
+
+    private fun verifySimulationParametersIdArg() {
+
     }
 
     private fun onUiEventConsumed() {

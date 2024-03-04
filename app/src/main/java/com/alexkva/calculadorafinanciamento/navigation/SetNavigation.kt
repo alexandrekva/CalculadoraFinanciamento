@@ -20,23 +20,20 @@ fun SetNavigation(
             route = Screens.InputScreen.getFullRoute(),
             arguments = Screens.InputScreen.getArguments()
         ) {
-            InputScreenRoute(navigateTo = navigationCommands::navigateTo)
+            InputScreenRoute(onNavigationCommand = navigationCommands::execute)
         }
         composable(
             route = Screens.SimulationScreen.getFullRoute(),
             arguments = Screens.SimulationScreen.getArguments()
         ) {
-            SimulationScreenRoute(navigateBack = navigationCommands::navigateBack)
+            SimulationScreenRoute(onNavigationCommand = navigationCommands::execute)
         }
 
         composable(
-            route = Screens.LogScreen.getFullRoute(),
-            arguments = Screens.LogScreen.getArguments()
+            route = Screens.LogScreen.getFullRoute(), arguments = Screens.LogScreen.getArguments()
         ) {
             LogScreenRoute(
-                navigateBackWithArgs = navigationCommands::navigateBackWithArgs,
-                navigateBack = navigationCommands::navigateBack,
-                navigateTo = navigationCommands::navigateTo
+                onNavigationCommand = navigationCommands::execute
             )
         }
     }

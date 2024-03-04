@@ -52,13 +52,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.ui.components.CurrencyOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledSwitch
 import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
 import com.alexkva.calculadorafinanciamento.ui.models.MenuItemCollection
-import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
+import com.alexkva.calculadorafinanciamento.ui.components.ObserveLifecycleEvents
+import com.alexkva.calculadorafinanciamento.ui.components.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
@@ -68,7 +70,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun InputScreenRoute(
     viewModel: InputScreenViewModel = hiltViewModel(),
-    navigateTo: (String) -> Unit
+    onNavigationCommand: (NavigationCommand) -> Unit
 ) {
     val inputScreenState: InputScreenState by viewModel.inputState.collectAsStateWithLifecycle()
     val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
@@ -76,7 +78,7 @@ fun InputScreenRoute(
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
-            is UiEvent.NavigateToRoute -> navigateTo(uiEvent.route)
+            is UiEvent.Navigate -> onNavigationCommand(uiEvent.navigationCommand)
             is UiEvent.ShowSnackbar -> scope.launch {
                 when (snackbarHostState.showSnackbar(uiEvent.snackbarVisuals)) {
                     SnackbarResult.ActionPerformed -> uiEvent.onActionPerformed()
@@ -85,6 +87,8 @@ fun InputScreenRoute(
             }
         }
     }
+
+    ObserveLifecycleEvents(onLifecycleEvent = viewModel::onLifecycleEvent)
 
     InputScreen(
         inputScreenState = inputScreenState,
@@ -105,38 +109,30 @@ private fun InputScreen(
     val scrollState = rememberScrollState()
 
     with(inputScreenState) {
-        Scaffold(
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-            topBar = {
-                CustomTopBar(
-                    title = { Text(text = stringResource(id = R.string.financing_simulation_label)) },
-                    trailingIcon = {
-                        CustomDropdownMenu(
-                            onUserEvent = onUserEvent,
-                            isDropdownMenuExpanded = isDropdownMenuExpanded,
-                            menuItemCollection = menuItemCollection
-                        )
-                    }
-                )
-            }
-        ) { paddingValues ->
+        Scaffold(snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        }, topBar = {
+            CustomTopBar(title = { Text(text = stringResource(id = R.string.financing_simulation_label)) },
+                trailingIcon = {
+                    CustomDropdownMenu(
+                        onUserEvent = onUserEvent,
+                        isDropdownMenuExpanded = isDropdownMenuExpanded,
+                        menuItemCollection = menuItemCollection
+                    )
+                })
+        }) { paddingValues ->
             Column(
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .clickable(
-                        interactionSource = interactionSource,
-                        indication = null
+                        interactionSource = interactionSource, indication = null
                     ) { focusManager.clearFocus() }
                     .padding(paddingValues)
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                SegmentedButton(
-                    buttonCollection = segmentedButtons,
+                verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                SegmentedButton(buttonCollection = segmentedButtons,
                     selectedButton = selectedSegmentedButton,
                     onButtonClick = {
                         onUserEvent(InputScreenUserEvents.SegmentedButtonChanged(it))
@@ -162,8 +158,7 @@ private fun InputScreen(
                     inputState = annualInterestState
                 )
 
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                OutlinedTextField(modifier = Modifier.fillMaxWidth(),
                     value = term,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
                     onValueChange = {
@@ -204,13 +199,13 @@ private fun InputScreen(
                         InputStates.INVALID_INPUT -> {
                             { Text(text = stringResource(id = R.string.term_invalid_input_error_text)) }
                         }
-                    }
-                )
+                    })
 
                 Divider(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface
+                        .padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Row(
@@ -225,15 +220,13 @@ private fun InputScreen(
                     )
                 }
 
-                LabeledSwitch(
-                    label = stringResource(id = R.string.simulate_insurance_label),
+                LabeledSwitch(label = stringResource(id = R.string.simulate_insurance_label),
                     description = stringResource(id = R.string.simulate_insurance_description),
                     isChecked = hasInsurance,
                     onCheckedChange = { onUserEvent(InputScreenUserEvents.HasInsuranceChanged(it)) })
 
 
-                LabeledSwitch(
-                    label = stringResource(id = R.string.administration_tax_label),
+                LabeledSwitch(label = stringResource(id = R.string.administration_tax_label),
                     description = stringResource(id = R.string.administration_tax_description),
                     isChecked = hasAdministrationTax,
                     onCheckedChange = {
@@ -244,21 +237,19 @@ private fun InputScreen(
                         )
                     })
 
-                LabeledSwitch(
-                    label = stringResource(id = R.string.simulate_reference_rate_label),
+                LabeledSwitch(label = stringResource(id = R.string.simulate_reference_rate_label),
                     description = stringResource(id = R.string.simulate_reference_rate_description),
                     isChecked = hasReferenceRate,
                     onCheckedChange = { onUserEvent(InputScreenUserEvents.HasReferenceRateChanged(it)) })
 
                 AnimatedVisibility(
-                    visible = hasOptionalInput(),
-                    enter = fadeIn(),
-                    exit = fadeOut()
+                    visible = hasOptionalInput(), enter = fadeIn(), exit = fadeOut()
                 ) {
                     Divider(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp), color = MaterialTheme.colorScheme.onSurface
+                            .padding(vertical = 8.dp),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -312,8 +303,7 @@ private fun InputScreen(
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
-                FilledTonalButton(
-                    modifier = Modifier.fillMaxWidth(),
+                FilledTonalButton(modifier = Modifier.fillMaxWidth(),
                     onClick = { onUserEvent(InputScreenUserEvents.SimulateButtonClicked) }) {
                     Text(text = stringResource(id = R.string.simulate_label))
                 }
@@ -332,8 +322,7 @@ private fun CustomDropdownMenu(
         IconButton(onClick = { onUserEvent(InputScreenUserEvents.DropdownMenuButtonClicked) }) {
             Icon(imageVector = Icons.Rounded.MoreVert, contentDescription = null)
         }
-        DropdownMenu(
-            expanded = isDropdownMenuExpanded,
+        DropdownMenu(expanded = isDropdownMenuExpanded,
             onDismissRequest = { onUserEvent(InputScreenUserEvents.DropdownMenuClosed) }) {
             menuItemCollection.menuItems.forEach {
                 DropdownMenuItem(label = it.label, onUserEvent = onUserEvent)
@@ -351,8 +340,7 @@ private fun DropdownMenuItem(label: String, onUserEvent: (InputScreenUserEvents)
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge
+            text = label, style = MaterialTheme.typography.labelLarge
         )
     }
 }

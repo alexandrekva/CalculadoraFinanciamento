@@ -21,6 +21,7 @@
     <string name="insurance_label">Seguro</string>
     <string name="reference_rate_label">Taxa referencial</string>
     <string name="simulate_label">Simular</string>
+    <string name="simulation_label">Simulação</string>
 
     <string name="total_paid_interests_label">Total pago em juros</string>
     <string name="total_paid_label">Total pago</string>

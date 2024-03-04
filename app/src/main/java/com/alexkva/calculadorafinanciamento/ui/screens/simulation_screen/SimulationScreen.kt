@@ -44,9 +44,10 @@ import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallment
 import com.alexkva.calculadorafinanciamento.business.entities.MonthlyInstallmentCollection
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledInfo
-import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
+import com.alexkva.calculadorafinanciamento.ui.components.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.classes.ColorGenerator
@@ -56,13 +57,13 @@ import java.math.BigDecimal
 @Composable
 fun SimulationScreenRoute(
     viewModel: SimulationScreenViewModel = hiltViewModel(),
-    navigateBack: () -> Unit
+    onNavigationCommand: (NavigationCommand) -> Unit
 ) {
     val simulationState: SimulationScreenState by viewModel.simulationState.collectAsStateWithLifecycle()
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
-            is UiEvent.NavigateBack -> navigateBack()
+            is UiEvent.Navigate -> onNavigationCommand(uiEvent.navigationCommand)
         }
     }
 
@@ -78,7 +79,7 @@ private fun SimulationScreen(
         Scaffold(
             topBar = {
                 CustomTopBar(
-                    title = { Text(text = stringResource(id = R.string.log_label)) },
+                    title = { Text(text = stringResource(id = R.string.simulation_label)) },
                     leadingIcon = {
                         IconButton(onClick = { onUserEvent(SimulationScreenUserEvent.BackButtonClicked) }) {
                             Icon(

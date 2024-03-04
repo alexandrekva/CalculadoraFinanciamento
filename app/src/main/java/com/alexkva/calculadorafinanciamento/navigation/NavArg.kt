@@ -19,28 +19,8 @@ sealed class NavArg(
         override val navType: NavType<*> = NavType.LongType
     }
 
-    data class Test(
-        override val isOptional: Boolean,
-        override val defaultValue: Any? = null,
-        override val nullable: Boolean? = null
-    ) : NavArg(isOptional, defaultValue, nullable) {
-        override val key: String = TEST_KEY
-        override val navType: NavType<*> = NavType.StringType
-    }
-
-    data class Test2(
-        override val isOptional: Boolean,
-        override val defaultValue: Any? = null,
-        override val nullable: Boolean? = null
-    ) : NavArg(isOptional, defaultValue, nullable) {
-        override val key: String = TEST_KEY2
-        override val navType: NavType<*> = NavType.StringType
-    }
-
     companion object {
         const val SIMULATION_PARAMETERS_ID_KEY = "simulationParametersId"
-        const val TEST_KEY = "test"
-        const val TEST_KEY2 = "test2"
     }
 }
 

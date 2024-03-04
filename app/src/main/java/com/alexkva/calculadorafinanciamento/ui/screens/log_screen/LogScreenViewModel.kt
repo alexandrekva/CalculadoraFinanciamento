@@ -7,7 +7,7 @@ import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteAllSimulat
 import com.alexkva.calculadorafinanciamento.business.interfaces.DeleteSimulationParametersByIdUseCase
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetAllSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
-import com.alexkva.calculadorafinanciamento.navigation.NavArg
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.LogItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
@@ -77,7 +77,11 @@ class LogScreenViewModel @Inject constructor(
 
     private fun onBackButtonClicked() {
         viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(UiEvent.NavigateBack(::onUiEventConsumed))
+            _uiEventsState.emit(
+                UiEvent.Navigate(
+                    NavigationCommand.NavigateBack, ::onUiEventConsumed
+                )
+            )
         }
     }
 
@@ -87,7 +91,6 @@ class LogScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> Unit
                     is Resource.Success -> makeAllItemLogNotVisible()
-
                     is Resource.Error -> println(result.message)
                 }
             }
@@ -109,9 +112,12 @@ class LogScreenViewModel @Inject constructor(
     private fun onEditButtonClicked(simulationParametersId: SimulationParametersId) {
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
-                UiEvent.NavigateToRoute(
-                    route = Screens.InputScreen.getNavigationRoute(simulationParametersId),
-                    ::onUiEventConsumed
+                UiEvent.Navigate(
+                    NavigationCommand.NavigateTo(
+                        route = Screens.InputScreen.getNavigationRoute(
+                            simulationParametersId
+                        ), inclusive = true, popUpToRoute = Screens.INPUT_SCREEN_ROUTE
+                    ), ::onUiEventConsumed
                 )
             )
         }
@@ -120,9 +126,12 @@ class LogScreenViewModel @Inject constructor(
     private fun onSimulateButtonClicked(simulationParametersId: SimulationParametersId) {
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
-                UiEvent.NavigateToRoute(
-                    route = Screens.SimulationScreen.getNavigationRoute(simulationParametersId),
-                    ::onUiEventConsumed
+                UiEvent.Navigate(
+                    NavigationCommand.NavigateTo(
+                        route = Screens.SimulationScreen.getNavigationRoute(
+                            simulationParametersId
+                        )
+                    ), ::onUiEventConsumed
                 )
             )
         }
@@ -130,27 +139,21 @@ class LogScreenViewModel @Inject constructor(
 
     private fun makeItemLogNotVisible(simulationParametersId: SimulationParametersId) {
         _logState.update { logScreenState ->
-            logScreenState.copy(logItemCollection = LogItemCollection(
-                logScreenState.logItemCollection.logItems.map { logItem ->
-                    if (logItem.simulationParameters.simulationParametersId == simulationParametersId) {
-                        logItem.copy(isVisible = false)
-                    } else {
-                        logItem
-                    }
+            logScreenState.copy(logItemCollection = LogItemCollection(logScreenState.logItemCollection.logItems.map { logItem ->
+                if (logItem.simulationParameters.simulationParametersId == simulationParametersId) {
+                    logItem.copy(isVisible = false)
+                } else {
+                    logItem
                 }
-            )
-            )
+            }))
         }
     }
 
     private fun makeAllItemLogNotVisible() {
         _logState.update { logScreenState ->
-            logScreenState.copy(logItemCollection = LogItemCollection(
-                logScreenState.logItemCollection.logItems.map { logItem ->
-                    logItem.copy(isVisible = false)
-                }
-            )
-            )
+            logScreenState.copy(logItemCollection = LogItemCollection(logScreenState.logItemCollection.logItems.map { logItem ->
+                logItem.copy(isVisible = false)
+            }))
         }
     }
 

@@ -8,6 +8,7 @@ import com.alexkva.calculadorafinanciamento.business.entities.SimulationParamete
 import com.alexkva.calculadorafinanciamento.business.interfaces.GetSimulationParametersUseCase
 import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.navigation.NavArg
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.navigation.Screens
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.utils.classes.Resource
@@ -32,10 +33,12 @@ class SimulationScreenViewModel @Inject constructor(
     private val _uiEventsState = MutableStateFlow<UiEvent?>(null)
     val uiEventState = _uiEventsState.asStateFlow()
 
+    private var simulationParametersId: SimulationParametersId = Long.MIN_VALUE
+
+
     init {
         handleNavArgs(
-            savedStateHandle = savedStateHandle,
-            navArgs = Screens.SimulationScreen.navArgs
+            savedStateHandle = savedStateHandle, navArgs = Screens.SimulationScreen.navArgs
         )
     }
 
@@ -44,11 +47,10 @@ class SimulationScreenViewModel @Inject constructor(
             when (navArg) {
                 is NavArg.SimulationParametersId -> {
                     savedStateHandle.get<Long>(navArg.key)?.let {
-                        getSimulationParameters(it)
+                        simulationParametersId = it
+                        getSimulationParameters(simulationParametersId)
                     }
                 }
-
-                else -> Unit
             }
         }
     }
@@ -94,7 +96,9 @@ class SimulationScreenViewModel @Inject constructor(
 
     private fun onBackButtonClicked() {
         viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(UiEvent.NavigateBack(::onUiEventConsumed))
+            _uiEventsState.emit(
+                UiEvent.Navigate(NavigationCommand.NavigateBack, ::onUiEventConsumed)
+            )
         }
     }
 

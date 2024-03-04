@@ -44,10 +44,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.alexkva.calculadorafinanciamento.R
 import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
+import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
+import com.alexkva.calculadorafinanciamento.ui.components.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.LogItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.LogItemModel
-import com.alexkva.calculadorafinanciamento.ui.models.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.extensions.toFormattedString
@@ -57,17 +58,13 @@ import java.math.BigDecimal
 @Composable
 fun LogScreenRoute(
     viewModel: LogScreenViewModel = hiltViewModel(),
-    navigateBackWithArgs: (Array<out Pair<String, Any>>) -> Unit,
-    navigateBack: () -> Unit,
-    navigateTo: (String) -> Unit
+    onNavigationCommand: (NavigationCommand) -> Unit
 ) {
     val logScreenState: LogScreenState by viewModel.logState.collectAsStateWithLifecycle()
 
     ObserveUiEvents(uiEventsFlow = viewModel.uiEventState) { uiEvent ->
         when (uiEvent) {
-            is UiEvent.NavigateBackWithArgs -> navigateBackWithArgs(uiEvent.navArgs)
-            is UiEvent.NavigateBack -> navigateBack()
-            is UiEvent.NavigateToRoute -> navigateTo(uiEvent.route)
+            is UiEvent.Navigate -> onNavigationCommand(uiEvent.navigationCommand)
         }
     }
 

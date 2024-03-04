@@ -66,8 +66,7 @@ sealed class Screens(val route: String, vararg val navArgs: NavArg) {
     }
 
     data object InputScreen : Screens(
-        route = INPUT_SCREEN_ROUTE,
-        NavArg.SimulationParametersId(isOptional = true, defaultValue = Long.MIN_VALUE)
+        route = INPUT_SCREEN_ROUTE, NavArg.SimulationParametersId(isOptional = true, defaultValue = Long.MIN_VALUE)
     ) {
         fun getNavigationRoute(simulationParametersId: SimulationParametersId? = null): String {
             val arg1 = navArgs[0] to simulationParametersId
@@ -76,8 +75,7 @@ sealed class Screens(val route: String, vararg val navArgs: NavArg) {
     }
 
     data object SimulationScreen : Screens(
-        route = SIMULATION_SCREEN_ROUTE,
-        NavArg.SimulationParametersId(isOptional = false)
+        route = SIMULATION_SCREEN_ROUTE, NavArg.SimulationParametersId(isOptional = false)
     ) {
         fun getNavigationRoute(simulationParametersId: SimulationParametersId): String {
             val arg1 = navArgs[0] to simulationParametersId
