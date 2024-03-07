@@ -127,7 +127,8 @@ private fun SimulationScreen(
                                 compareLabel = stringResource(
                                     id = R.string.compare_label,
                                     simulationScreenState.financingType.inverse().label
-                                )
+                                ),
+                                onUserEvent = onUserEvent
                             )
                         }
 
@@ -148,9 +149,7 @@ private fun SimulationScreen(
                         }
                     }
                 }
-
             }
-
         }
     }
 }
@@ -218,7 +217,8 @@ private fun SimulationHeader(
 private fun FirstAndLastInstallment(
     firstInstallment: MonthlyInstallment,
     lastInstallment: MonthlyInstallment,
-    compareLabel: String
+    compareLabel: String,
+    onUserEvent: (SimulationScreenUserEvent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -245,7 +245,7 @@ private fun FirstAndLastInstallment(
                 )
             )
 
-            TextButton(modifier = Modifier.align(Alignment.End), onClick = { /*TODO*/ }) {
+            TextButton(modifier = Modifier.align(Alignment.End), onClick = { onUserEvent(SimulationScreenUserEvent.CompareButtonClicked) }) {
                 Text(text = compareLabel)
             }
         }

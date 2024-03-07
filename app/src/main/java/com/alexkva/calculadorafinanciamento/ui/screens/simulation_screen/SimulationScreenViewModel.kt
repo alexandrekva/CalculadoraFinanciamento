@@ -1,5 +1,6 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.simulation_screen
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -59,15 +60,25 @@ class SimulationScreenViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             getSimulationParametersUseCase(simulationParametersId).collect { result ->
                 when (result) {
-                    is Resource.Loading -> println(result.message)
+                    is Resource.Loading -> setLoading()
                     is Resource.Success -> doSimulation(result.data)
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "getSimulationParameters: ${result.message}"
+                    )
                 }
             }
         }
     }
 
+    private fun setLoading() {
+        _simulationState.update { state ->
+            state.copy(isLoading = true)
+        }
+    }
+
     private fun doSimulation(simulationParameters: SimulationParameters) {
+        setLoading()
+
         val simulation = FinancingSimulation.simulate(simulationParameters)
 
         _simulationState.update { state ->
@@ -91,6 +102,10 @@ class SimulationScreenViewModel @Inject constructor(
             is SimulationScreenUserEvent.BackButtonClicked -> {
                 onBackButtonClicked()
             }
+
+            is SimulationScreenUserEvent.CompareButtonClicked -> {
+                onCompareButtonClicked()
+            }
         }
     }
 
@@ -98,6 +113,20 @@ class SimulationScreenViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             _uiEventsState.emit(
                 UiEvent.Navigate(NavigationCommand.NavigateBack, ::onUiEventConsumed)
+            )
+        }
+    }
+
+    private fun onCompareButtonClicked() {
+        viewModelScope.launch(dispatcher) {
+            _uiEventsState.emit(
+                UiEvent.Navigate(
+                    NavigationCommand.NavigateTo(
+                        route = Screens.CompareScreen.getNavigationRoute(
+                            simulationParametersId
+                        )
+                    ), ::onUiEventConsumed
+                )
             )
         }
     }

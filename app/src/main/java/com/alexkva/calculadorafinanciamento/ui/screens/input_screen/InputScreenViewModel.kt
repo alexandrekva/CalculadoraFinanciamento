@@ -1,5 +1,6 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
+import android.util.Log
 import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
@@ -86,7 +87,9 @@ class InputScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> {}
                     is Resource.Success -> displayLastSimulationSnackbar(result.data)
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "getLastSimulationParameter: ${result.message}"
+                    )
                 }
             }
         }
@@ -100,7 +103,9 @@ class InputScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> {}
                     is Resource.Success -> updateSimulationParameters(result.data)
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "getSimulationParameters: ${result.message}"
+                    )
                 }
             }
         }
@@ -351,7 +356,9 @@ class InputScreenViewModel @Inject constructor(
                         )
                     )
 
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "insertSimulationParameters: ${result.message}"
+                    )
                 }
             }
         }

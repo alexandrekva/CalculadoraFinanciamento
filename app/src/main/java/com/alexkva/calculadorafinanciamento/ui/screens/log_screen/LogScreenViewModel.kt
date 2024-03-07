@@ -1,5 +1,6 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.log_screen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
@@ -45,7 +46,9 @@ class LogScreenViewModel @Inject constructor(
                         updateLogState(result.data)
                     }
 
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "getAllSimulationParameters: ${result.message}"
+                    )
                 }
             }
         }
@@ -91,7 +94,9 @@ class LogScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> Unit
                     is Resource.Success -> makeAllItemLogNotVisible()
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error", "onDeleteAllLogsButtonClicked: ${result.message}"
+                    )
                 }
             }
         }
@@ -103,7 +108,10 @@ class LogScreenViewModel @Inject constructor(
                 when (result) {
                     is Resource.Loading -> Unit
                     is Resource.Success -> makeItemLogNotVisible(simulationParametersId)
-                    is Resource.Error -> println(result.message)
+                    is Resource.Error -> Log.e(
+                        "Error",
+                        "onDeleteLogButtonClicked: ${result.message}",
+                    )
                 }
             }
         }
@@ -172,6 +180,4 @@ class LogScreenViewModel @Inject constructor(
     private fun onUiEventConsumed() {
         _uiEventsState.update { null }
     }
-
-
 }
