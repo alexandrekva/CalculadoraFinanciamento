@@ -1,4 +1,7 @@
 package com.alexkva.calculadorafinanciamento.ui.screens.compare_screen
 
-class CompareScreenUserEvent {
+import com.alexkva.calculadorafinanciamento.ui.screens.simulation_screen.SimulationScreenUserEvent
+
+sealed class CompareScreenUserEvent {
+    data object BackButtonClicked : CompareScreenUserEvent()
 }

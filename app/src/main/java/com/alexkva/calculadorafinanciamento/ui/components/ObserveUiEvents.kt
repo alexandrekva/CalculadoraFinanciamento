@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.filterNotNull
 fun ObserveUiEvents(uiEventsFlow: StateFlow<UiEvent?>, onEvent: (UiEvent) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(Unit, lifecycleOwner) {
+    LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             uiEventsFlow.filterNotNull().collect {
                 onEvent(it)

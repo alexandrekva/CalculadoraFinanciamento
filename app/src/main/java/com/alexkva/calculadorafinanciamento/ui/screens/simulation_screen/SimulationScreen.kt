@@ -125,7 +125,7 @@ private fun SimulationScreen(
                                 firstInstallment = monthlyInstallmentCollection.monthlyInstallments.first(),
                                 lastInstallment = monthlyInstallmentCollection.monthlyInstallments.last(),
                                 compareLabel = stringResource(
-                                    id = R.string.compare_label,
+                                    id = R.string.compare_with_label,
                                     simulationScreenState.financingType.inverse().label
                                 ),
                                 onUserEvent = onUserEvent

@@ -79,11 +79,9 @@ class LogScreenViewModel @Inject constructor(
     }
 
     private fun onBackButtonClicked() {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(
-                    NavigationCommand.NavigateBack, ::onUiEventConsumed
-                )
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateBack, ::onUiEventConsumed
             )
         }
     }
@@ -118,29 +116,25 @@ class LogScreenViewModel @Inject constructor(
     }
 
     private fun onEditButtonClicked(simulationParametersId: SimulationParametersId) {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(
-                    NavigationCommand.NavigateTo(
-                        route = Screens.InputScreen.getNavigationRoute(
-                            simulationParametersId
-                        ), inclusive = true, popUpToRoute = Screens.INPUT_SCREEN_ROUTE
-                    ), ::onUiEventConsumed
-                )
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateTo(
+                    route = Screens.InputScreen.getNavigationRoute(
+                        simulationParametersId
+                    ), inclusive = true, popUpToRoute = Screens.INPUT_SCREEN_ROUTE
+                ), ::onUiEventConsumed
             )
         }
     }
 
     private fun onSimulateButtonClicked(simulationParametersId: SimulationParametersId) {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(
-                    NavigationCommand.NavigateTo(
-                        route = Screens.SimulationScreen.getNavigationRoute(
-                            simulationParametersId
-                        )
-                    ), ::onUiEventConsumed
-                )
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateTo(
+                    route = Screens.SimulationScreen.getNavigationRoute(
+                        simulationParametersId
+                    )
+                ), ::onUiEventConsumed
             )
         }
     }

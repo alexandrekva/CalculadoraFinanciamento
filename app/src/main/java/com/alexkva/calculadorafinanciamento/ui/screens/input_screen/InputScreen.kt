@@ -56,11 +56,10 @@ import com.alexkva.calculadorafinanciamento.navigation.NavigationCommand
 import com.alexkva.calculadorafinanciamento.ui.components.CurrencyOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.CustomTopBar
 import com.alexkva.calculadorafinanciamento.ui.components.LabeledSwitch
+import com.alexkva.calculadorafinanciamento.ui.components.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.components.PercentOutlinedTextField
 import com.alexkva.calculadorafinanciamento.ui.components.SegmentedButton
 import com.alexkva.calculadorafinanciamento.ui.models.MenuItemCollection
-import com.alexkva.calculadorafinanciamento.ui.components.ObserveLifecycleEvents
-import com.alexkva.calculadorafinanciamento.ui.components.ObserveUiEvents
 import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.extensions.formatToNumericString
@@ -87,8 +86,6 @@ fun InputScreenRoute(
             }
         }
     }
-
-    ObserveLifecycleEvents(onLifecycleEvent = viewModel::onLifecycleEvent)
 
     InputScreen(
         inputScreenState = inputScreenState,

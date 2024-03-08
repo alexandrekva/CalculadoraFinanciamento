@@ -22,6 +22,7 @@
     <string name="reference_rate_label">Taxa referencial</string>
     <string name="simulate_label">Simular</string>
     <string name="simulation_label">Simulação</string>
+    <string name="compare_label">Comparação</string>
 
     <string name="total_paid_interests_label">Total pago em juros</string>
     <string name="total_paid_label">Total pago</string>
@@ -46,7 +47,7 @@
     <string name="administration_tax_currency_value">Taxa de administração: R$ %1$s</string>
     <string name="remaining_balance_currency_value">Saldo remanescente: R$ %1$s</string>
     <string name="amount_financed_currency_value">Valor financiado: R$ %1$s</string>
-    <string name="compare_label">Comparar com %1$s</string>
+    <string name="compare_with_label">Comparar com %1$s</string>
     <string name="months_label">%1$s meses</string>
     <string name="annual_interest_with_value">Juros anuais: %1$s</string>
 

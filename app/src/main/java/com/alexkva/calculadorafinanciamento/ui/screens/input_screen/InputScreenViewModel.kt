@@ -2,7 +2,6 @@ package com.alexkva.calculadorafinanciamento.ui.screens.input_screen
 
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -111,8 +110,8 @@ class InputScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun displayLastSimulationSnackbar(simulationParameters: SimulationParameters) {
-        _uiEventsState.emit(
+    private fun displayLastSimulationSnackbar(simulationParameters: SimulationParameters) {
+        _uiEventsState.update {
             UiEvent.ShowSnackbar(
                 snackbarVisuals = CustomSnackbarVisuals(
                     message = "Deseja continuar a última simulação?",
@@ -127,7 +126,7 @@ class InputScreenViewModel @Inject constructor(
                     )
                 }, onConsumedAction = ::onUiEventConsumed
             )
-        )
+        }
     }
 
     internal fun onUserEvent(userEvent: InputScreenUserEvents) {
@@ -206,21 +205,12 @@ class InputScreenViewModel @Inject constructor(
         }
     }
 
-    internal fun onLifecycleEvent(lifecycleEvent: Lifecycle.Event) {
-        when (lifecycleEvent) {
-            Lifecycle.Event.ON_RESUME -> verifySimulationParametersIdArg()
-            else -> Unit
-        }
-    }
-
     private fun navigateToLog() {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(
-                    NavigationCommand.NavigateTo(
-                        route = Screens.LogScreen.getNavigationRoute()
-                    ), ::onUiEventConsumed
-                )
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateTo(
+                    route = Screens.LogScreen.getNavigationRoute()
+                ), ::onUiEventConsumed
             )
         }
     }
@@ -348,14 +338,7 @@ class InputScreenViewModel @Inject constructor(
             insertSimulationParametersUseCase(simulationParameters).collect { result ->
                 when (result) {
                     is Resource.Loading -> Unit
-                    is Resource.Success -> _uiEventsState.emit(
-                        UiEvent.Navigate(
-                            NavigationCommand.NavigateTo(
-                                route = Screens.SimulationScreen.getNavigationRoute(result.data)
-                            ), ::onUiEventConsumed
-                        )
-                    )
-
+                    is Resource.Success -> onInsertSimulationParametersSuccess(result.data)
                     is Resource.Error -> Log.e(
                         "Error", "insertSimulationParameters: ${result.message}"
                     )
@@ -364,12 +347,18 @@ class InputScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getFinancingTypeBySelectedButton(): FinancingTypes {
-        return financingTypes[inputState.value.selectedSegmentedButton]
+    private fun onInsertSimulationParametersSuccess(simulationParametersId: SimulationParametersId) {
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateTo(
+                    route = Screens.SimulationScreen.getNavigationRoute(simulationParametersId)
+                ), ::onUiEventConsumed
+            )
+        }
     }
 
-    private fun verifySimulationParametersIdArg() {
-
+    private fun getFinancingTypeBySelectedButton(): FinancingTypes {
+        return financingTypes[inputState.value.selectedSegmentedButton]
     }
 
     private fun onUiEventConsumed() {

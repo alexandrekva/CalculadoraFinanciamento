@@ -79,20 +79,22 @@ class SimulationScreenViewModel @Inject constructor(
     private fun doSimulation(simulationParameters: SimulationParameters) {
         setLoading()
 
-        val simulation = FinancingSimulation.simulate(simulationParameters)
+        viewModelScope.launch(dispatcher) {
+            val simulation = FinancingSimulation.simulate(simulationParameters)
 
-        _simulationState.update { state ->
-            with(simulation) {
-                state.copy(
-                    isLoading = false,
-                    financingType = simulationParameters.financingType,
-                    amountFinanced = simulationParameters.amountFinanced,
-                    termInMonths = simulationParameters.termInMonths,
-                    totalPaid = getTotalPaid(),
-                    totalPaidInInterests = getTotalPaidInInterests(),
-                    totalMonetaryUpdate = getTotalMonetaryUpdate(),
-                    monthlyInstallmentCollection = simulation.monthlyInstallmentCollection
-                )
+            _simulationState.update { state ->
+                with(simulation) {
+                    state.copy(
+                        isLoading = false,
+                        financingType = simulationParameters.financingType,
+                        amountFinanced = simulationParameters.amountFinanced,
+                        termInMonths = simulationParameters.termInMonths,
+                        totalPaid = getTotalPaid(),
+                        totalPaidInInterests = getTotalPaidInInterests(),
+                        totalMonetaryUpdate = getTotalMonetaryUpdate(),
+                        monthlyInstallmentCollection = simulation.monthlyInstallmentCollection
+                    )
+                }
             }
         }
     }
@@ -110,23 +112,21 @@ class SimulationScreenViewModel @Inject constructor(
     }
 
     private fun onBackButtonClicked() {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(NavigationCommand.NavigateBack, ::onUiEventConsumed)
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateBack, ::onUiEventConsumed
             )
         }
     }
 
     private fun onCompareButtonClicked() {
-        viewModelScope.launch(dispatcher) {
-            _uiEventsState.emit(
-                UiEvent.Navigate(
-                    NavigationCommand.NavigateTo(
-                        route = Screens.CompareScreen.getNavigationRoute(
-                            simulationParametersId
-                        )
-                    ), ::onUiEventConsumed
-                )
+        _uiEventsState.update {
+            UiEvent.Navigate(
+                NavigationCommand.NavigateTo(
+                    route = Screens.CompareScreen.getNavigationRoute(
+                        simulationParametersId
+                    )
+                ), ::onUiEventConsumed
             )
         }
     }
