@@ -146,6 +146,7 @@ private fun SimulationScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
                     }
                 }

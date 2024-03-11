@@ -184,14 +184,7 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.SimulateButtonClicked -> {
-                validateInputFields()
-
-                if (inputState.value.isValidInput()) {
-                    val simParams = inputState.value.toSimulationParameters(
-                        getFinancingTypeBySelectedButton()
-                    )
-                    insertSimulationParameters(simParams)
-                }
+                validateAndSimulate()
             }
 
             is InputScreenUserEvents.LastSimulationClicked -> {
@@ -199,8 +192,7 @@ class InputScreenViewModel @Inject constructor(
             }
 
             is InputScreenUserEvents.LogButtonClicked -> {
-                closeDropdownMenu()
-                navigateToLog()
+                closeMenuAndNavigateToLog()
             }
         }
     }
@@ -333,6 +325,19 @@ class InputScreenViewModel @Inject constructor(
         }
     }
 
+    private fun validateAndSimulate() {
+        validateInputFields()
+
+        if (inputState.value.isValidInput()) {
+            val simParams = inputState.value.toSimulationParameters(
+                simulationParametersId = simulationParametersId,
+                financingType = getFinancingTypeBySelectedButton(),
+            )
+
+            insertSimulationParameters(simParams)
+        }
+    }
+
     private fun insertSimulationParameters(simulationParameters: SimulationParameters) {
         viewModelScope.launch(dispatcher) {
             insertSimulationParametersUseCase(simulationParameters).collect { result ->
@@ -359,6 +364,11 @@ class InputScreenViewModel @Inject constructor(
 
     private fun getFinancingTypeBySelectedButton(): FinancingTypes {
         return financingTypes[inputState.value.selectedSegmentedButton]
+    }
+
+    private fun closeMenuAndNavigateToLog() {
+        closeDropdownMenu()
+        navigateToLog()
     }
 
     private fun onUiEventConsumed() {

@@ -99,16 +99,9 @@ class CompareScreenViewModel @Inject constructor(
             _compareState.update {
                 it.copy(
                     isLoading = false,
-                    termInMonths = simulationParameters.termInMonths,
                     amountFinanced = simulationParameters.amountFinanced,
-                    totalPaidCurrentSimulation = currentSimulation.getTotalPaid(),
-                    totalPaidCompareSimulation = compareSimulation.getTotalPaid(),
-                    totalPaidInInterestsCurrentSimulation = currentSimulation.getTotalPaidInInterests(),
-                    totalPaidInInterestsCompareSimulation = compareSimulation.getTotalPaidInInterests(),
-                    totalMonetaryUpdateCompareSimulation = currentSimulation.getTotalMonetaryUpdate(),
-                    totalMonetaryUpdateCurrentSimulation = compareSimulation.getTotalMonetaryUpdate(),
-                    monthlyInstallmentCollectionCurrentSimulation = currentSimulation.monthlyInstallmentCollection,
-                    monthlyInstallmentCollectionCompareSimulation = compareSimulation.monthlyInstallmentCollection
+                    currentSimulationResult = currentSimulation,
+                    compareSimulationResult = compareSimulation
                 )
             }
         }

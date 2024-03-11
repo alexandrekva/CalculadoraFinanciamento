@@ -56,4 +56,6 @@
 
     <string name="amortization_relation_legend">O círculo ao lado do número da parcela mostra como a quantia amortizada se relaciona com o valor total da parcela. Quanto mais verde o círculo, menos juros estão sendo pagos; quanto mais vermelho, mais juros estão sendo pagos.</string>
     <string name="balance_increasing_legend">O ponto de exclamação ao lado do número da parcela indica que o saldo devedor está aumentando porque o valor amortizado naquele mês foi menor do que a correção monetária.</string>
+
+    <string name="financing_with_currency_label">Financiamento\nR$ %1$s</string>
 </resources>

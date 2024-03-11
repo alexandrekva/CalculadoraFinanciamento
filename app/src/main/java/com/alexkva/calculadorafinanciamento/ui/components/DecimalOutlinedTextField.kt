@@ -34,8 +34,6 @@ fun DecimalOutlinedTextField(
     maxLength: Int = 12,
     onValueChanged: (String) -> Unit
 ) {
-    val isError = inputState != InputStates.VALID
-
     val errorText: @Composable (() -> Unit)? = when (inputState) {
         InputStates.VALID -> null
         InputStates.EMPTY -> { { Text(text = stringResource(id = R.string.empty_input_error_text)) } }
@@ -57,10 +55,11 @@ fun DecimalOutlinedTextField(
         leadingIcon = if (inputValue.isNotEmpty()) leadingIcon else null,
         visualTransformation = decimalValueInputVisualTransformation,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-        isError = isError,
+        isError = inputState != InputStates.VALID,
         supportingText = errorText ?: supportingText
     )
 }
+
 
 @Preview(showBackground = true)
 @Composable

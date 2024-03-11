@@ -3,6 +3,8 @@ package com.alexkva.calculadorafinanciamento.business.entities
 import java.math.BigDecimal
 
 data class SimulationResult(
+    val financingTypes: FinancingTypes = FinancingTypes.SAC,
+    val termInMonths: Int = 0,
     val monthlyInstallmentCollection: MonthlyInstallmentCollection = MonthlyInstallmentCollection(
         emptyList()
     )

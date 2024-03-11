@@ -58,7 +58,11 @@ class FinancingSimulation {
                 }
             }
 
-            return SimulationResult(MonthlyInstallmentCollection(monthlyInstallmentList))
+            return SimulationResult(
+                financingTypes = simulationParameters.financingType,
+                termInMonths = simulationParameters.termInMonths,
+                monthlyInstallmentCollection = MonthlyInstallmentCollection(monthlyInstallmentList)
+            )
         }
 
         private fun simulatePrice(simulationParameters: SimulationParameters): SimulationResult {
@@ -108,13 +112,15 @@ class FinancingSimulation {
                     )
                 }
             }
-            return SimulationResult(MonthlyInstallmentCollection(monthlyInstallmentList))
+            return SimulationResult(
+                financingTypes = simulationParameters.financingType,
+                termInMonths = simulationParameters.termInMonths,
+                monthlyInstallmentCollection = MonthlyInstallmentCollection(monthlyInstallmentList)
+            )
         }
 
         private fun calculatePriceMonthlyInstallment(
-            amountFinanced: BigDecimal,
-            monthlyInterestRate: BigDecimal,
-            termInMonths: Int
+            amountFinanced: BigDecimal, monthlyInterestRate: BigDecimal, termInMonths: Int
         ): BigDecimal {
 
             val numerator = monthlyInterestRate.multiply(amountFinanced, defaultMathContext)

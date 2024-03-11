@@ -4,6 +4,7 @@ import com.alexkva.calculadorafinanciamento.business.entities.FinancingTypes
 import com.alexkva.calculadorafinanciamento.business.entities.InputStates
 import com.alexkva.calculadorafinanciamento.business.entities.SimulationParameters
 import com.alexkva.calculadorafinanciamento.business.entities.TermOptions
+import com.alexkva.calculadorafinanciamento.data.local.dao.SimulationParametersId
 import com.alexkva.calculadorafinanciamento.ui.models.MenuItemCollection
 import com.alexkva.calculadorafinanciamento.ui.models.MenuItemModel
 import com.alexkva.calculadorafinanciamento.ui.models.SegmentedButtonCollection
@@ -15,8 +16,9 @@ data class InputScreenState(
     val isDropdownMenuExpanded: Boolean = false,
     val menuItemCollection: MenuItemCollection = MenuItemCollection(listOf(MenuItemModel("Histórico"))),
 
-    val segmentedButtons: SegmentedButtonCollection =
-        SegmentedButtonBuilder.buildByFinancingTypes(FinancingTypes.entries),
+    val segmentedButtons: SegmentedButtonCollection = SegmentedButtonBuilder.buildByFinancingTypes(
+        FinancingTypes.entries
+    ),
 
     val selectedSegmentedButton: Int = 0,
 
@@ -43,9 +45,8 @@ data class InputScreenState(
     val referenceRateState: InputStates = InputStates.VALID
 ) {
     fun isValidInput(): Boolean {
-        val mandatoryFieldsValid = amountFinancedState == InputStates.VALID &&
-                annualInterestState == InputStates.VALID &&
-                termState == InputStates.VALID
+        val mandatoryFieldsValid =
+            amountFinancedState == InputStates.VALID && annualInterestState == InputStates.VALID && termState == InputStates.VALID
 
         val insuranceValid = !hasInsurance || insuranceState == InputStates.VALID
         val administrationTaxValid =
@@ -79,8 +80,11 @@ data class InputScreenState(
             ?.divide(BigDecimal(100)) else null
     }
 
-    fun toSimulationParameters(financingType: FinancingTypes): SimulationParameters {
+    fun toSimulationParameters(
+        simulationParametersId: SimulationParametersId?, financingType: FinancingTypes
+    ): SimulationParameters {
         return SimulationParameters(
+            simulationParametersId = simulationParametersId ?: 0,
             financingType = financingType,
             amountFinanced = amountFinanced.toBigDecimalFromInput() ?: BigDecimal.ZERO,
             annualInterest = annualInterest.toBigDecimalFromInput()?.divide(BigDecimal(100))

@@ -5,7 +5,7 @@ import com.alexkva.calculadorafinanciamento.data.local.entities.SimulationParame
 import java.math.BigDecimal
 
 data class SimulationParameters(
-    val simulationParametersId: SimulationParametersId = Long.MIN_VALUE,
+    val simulationParametersId: SimulationParametersId = 0,
     val financingType: FinancingTypes,
     val amountFinanced: BigDecimal,
     val annualInterest: BigDecimal,
@@ -16,6 +16,7 @@ data class SimulationParameters(
 ) {
     fun toEntity(): SimulationParametersEntity {
         return SimulationParametersEntity(
+            uid = simulationParametersId,
             financingType = financingType,
             amountFinanced = amountFinanced,
             annualInterest = annualInterest,
