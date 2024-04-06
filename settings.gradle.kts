@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "CalculadoraFinanciamento"
 include(":app")
- 
+include(":baselineprofile")

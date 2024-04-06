@@ -8,5 +8,5 @@ data class CompareScreenState(
     val termInMonths: Int = 0,
     val amountFinanced: BigDecimal = BigDecimal.ZERO,
     val currentSimulationResult: SimulationResult = SimulationResult(),
-    val compareSimulationResult: SimulationResult = SimulationResult(),
+    val compareSimulationResult: SimulationResult = SimulationResult()
 )

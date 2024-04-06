@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -17,7 +16,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -36,7 +34,6 @@ import com.alexkva.calculadorafinanciamento.ui.models.UiEvent
 import com.alexkva.calculadorafinanciamento.ui.theme.CalculadoraFinanciamentoTheme
 import com.alexkva.calculadorafinanciamento.utils.classes.SimulationComparator
 import com.alexkva.calculadorafinanciamento.utils.extensions.toFormattedString
-import kotlin.math.max
 
 @Composable
 fun CompareScreenRoute(
@@ -59,23 +56,6 @@ fun CompareScreen(
     compareScreenState: CompareScreenState, onUserEvent: (CompareScreenUserEvent) -> Unit
 ) {
     with(compareScreenState) {
-        val pairedList = remember(currentSimulationResult, compareSimulationResult) {
-            val maxIndex = max(
-                currentSimulationResult.monthlyInstallmentCollection.monthlyInstallments.lastIndex,
-                compareSimulationResult.monthlyInstallmentCollection.monthlyInstallments.lastIndex
-            )
-
-            if (maxIndex > 0) {
-                List(maxIndex) {
-                    currentSimulationResult.monthlyInstallmentCollection.monthlyInstallments.getOrNull(
-                        it
-                    ) to compareSimulationResult.monthlyInstallmentCollection.monthlyInstallments.getOrNull(
-                        it
-                    )
-                }
-            } else emptyList()
-        }
-
         Scaffold(topBar = {
             CustomTopBar(title = { Text(text = stringResource(id = R.string.compare_label)) },
                 leadingIcon = {
@@ -126,10 +106,6 @@ fun CompareScreen(
                                 )
                             )
                         }
-
-                        items(pairedList) {
-                            Text(text = "${it.first.toString()} ${it.second.toString()}")
-                        }
                     }
                 }
             }
@@ -147,7 +123,6 @@ private fun AmountFinancedBanner(modifier: Modifier = Modifier, string: String) 
         fontWeight = FontWeight.Bold
     )
 }
-
 
 @Preview
 @Composable
